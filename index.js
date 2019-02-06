@@ -104,6 +104,13 @@ io.on('connection', function (socket) {
         }
         console.log("Client déconnecté");
     });
+
+     socket.on("dessinCanvas", function(img) { 
+        // si client était identifié
+        
+        console.log("image recue");
+	io.sockets.emit("dessinCanvas", img);
+    });
     
     
 });

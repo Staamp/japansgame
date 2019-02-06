@@ -271,7 +271,9 @@ function clicSouris(){
 		instanceCommande.setCoordonneeDepart();
 	}
 }
-
+function appelleSocketCanvas(img){
+	socket.emit("dessinCanvas",img);
+}	
 function Deplacement(e){
 	var rect = e.target.getBoundingClientRect();
 	var x = e.clientX - rect.left;
@@ -348,6 +350,7 @@ function afficheCercleCurseur(){
     canvasOverlay.fill(cercle);
 }
 function relachementSouris(){
+	appelleSocketCanvas("lol");
 	instanceCommande.buttonLeftPressed =false;
 	if(etat=="pinceau"){
 		afficheCercle();
