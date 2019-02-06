@@ -1,4 +1,4 @@
-
+var isDessinateur=false;
 var id;
 var result;
 document.addEventListener("DOMContentLoaded",function(e){
@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded",function(e){
 		document.getElementById("id4").addEventListener('click',function(){
 			envoyerImage(res.getElementsByTagName('img')[4].src);
 		});
-		
+		estDessinateur();
 
 
 function gif(){
@@ -81,6 +81,10 @@ function connexion(){
 	radio1.checked=0;
 	var radio2=document.getElementById('radio2');
 	radio2.checked=1;
+}
+function estDessinateur(){
+	var toolbox=document.getElementById('toolbox');
+	toolbox.style="	";
 }
 function detecteEmoji(text){
 	var res=text;

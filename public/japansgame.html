@@ -41,6 +41,21 @@
             <div id="bcResults"></div>
             <footer><input type="button" value="Fermer" id="btnFermer"></footer>
         </div>
+	<div id="content_dessin">
+	<h2>Zone de dessin</h2>
+	<canvas id="dessin" width="500" height="500"></canvas>
+    	<canvas id="overlay" width="500" height="500"></canvas>
+    	<div id="toolbox" style="display: none">
+	<input type="radio" name="radCommande" id="tracer" checked> <label for="tracer"></label>
+	<input type="radio" name="radCommande" id="gommer"> <label for="gommer"></label>
+	<input type="radio" name="radCommande" id="ligne">  <label for="ligne"></label>
+	<input type="radio" name="radCommande" id="rectangle"> <label for="rectangle"></label>        
+	<input type="range" id="size" min="1" max="50" value="5">
+	<div id="new"></div>
+	<div id="open"></div>
+	<div id="save"></div>
+	    </div>
+	    </div>
     </div>
 </body>
 

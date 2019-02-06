@@ -14,7 +14,8 @@ body > div {
 #content {
     position: absolute;
     top: 50%;
-    left: 50%;
+    right: 50%;
+    left: 65%;
     transform: translateX(-50%) translateY(-50%);
     -webkit-transform: translateX(-50%) translateY(-50%);
     -ms-transform: translateX(-50%) translateY(-50%);
@@ -225,15 +226,17 @@ input[type=radio]:checked + div {
 
 
 /** CSS 2**/
-/*
-#content {
-    position: relative;
+
+#content_dessin {
+    position: absolute;
+    left:-100%;
+    top: 0%;
     width: 620px;
     height: 500px;
     margin: 10px auto;
-}*/
+}
     
-#content canvas {
+#content_dessin canvas {
     cursor: none;
     border: solid 1px #000;
     width: 500px;
@@ -242,10 +245,10 @@ input[type=radio]:checked + div {
     top: 0; 
     left: 0;
 }
-#content canvas#overlay {
+#content_dessin canvas#overlay {
     opacity: 0.8;
 }
-#content canvas#dessin {
+#content_dessin canvas#dessin {
     background-image: url('../images/bgDessin.png');
     background-size: 50px 50px;
     background-repeat: repeat;
