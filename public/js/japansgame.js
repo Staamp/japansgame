@@ -105,10 +105,10 @@ function detecteEmoji(text){
  	return res;
 }
 function detecteImage(text){
-	var indiceDepart=text.indexOf('[img:')+6;
+	var indiceDepart=text.indexOf('[img:')+5;
 	var indiceFin=text.indexOf(']')
 	if(indiceFin<0 || indiceDepart<0 || indiceDepart>indiceFin){
-			return res;
+			return text;
 	}
 	return "<img src="+text.substring(indiceDepart, indiceFin)+">";
 }
@@ -145,21 +145,21 @@ function envoyer(){
 			}
 		}
 		if(utilisateurExistant){
-			if(txt==detecteImage(txt.substring(indexEspace))){
-				txt=detecteEmoji(txt.substring(indexEspace));
+			if(txt==detecteImage(txt)){
+				txt=detecteEmoji(txt);
 			}
-			detecteImage(txt.substring(indexEspace));
-			socket.emit("message",{from:NomUtilisateur, to:to, text:txt.substring(indexEspace), date:Date.now()});
+			txt=detecteImage(txt);
+			socket.emit("message",{from:NomUtilisateur, to:to, text:txt, date:Date.now()});
 		}
 		else{
 			main.innerHTML+="Message non envoyé<br>";
 		}
 	}
 	else{
-		if(txt==detecteImage(txt.substring(indexEspace))){
-			txt=detecteEmoji(txt.substring(indexEspace));
+		if(txt==detecteImage(txt)){
+			txt=detecteEmoji(txt);
 		}
-		txt=detecteImage(txt.substring(indexEspace));
+		txt=detecteImage(txt);
 		socket.emit("message",{from:NomUtilisateur, to:null, text:txt, date:Date.now()});
 	
 	}
