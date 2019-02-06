@@ -1,6 +1,29 @@
+class command{
+	constructor(){
+		this.buttonLeftPressed = false;
+		this.x=0;
+		this.y=0;
+		this.xDepart=0;
+		this.yDepart=0;
+	}
+	setCoordonnee(X,Y){
+		this.x=X;
+		this.y=Y;
+	}
+	setCoordonneeDepart(){
+		this.xDepart=this.x;
+		this.yDepart=this.y;
+	}
+
+}
 var isDessinateur=false;
 var id;
 var result;
+var etat="pinceau";
+var taille=5;
+var instanceCommande=new command();
+var overlay;
+var canvasOverlay;
 document.addEventListener("DOMContentLoaded",function(e){
 		var NomUtilisateur;
 		var listeUser;
@@ -9,6 +32,19 @@ document.addEventListener("DOMContentLoaded",function(e){
 		document.getElementById('btnImage').addEventListener('click',gif);
 		document.getElementById('btnRechercher').addEventListener('click',rechercheGif);
 		document.getElementById('btnFermer').addEventListener('click',Quittegif);
+		overlay = document.getElementById('overlay');
+		canvasOverlay = overlay.getContext('2d');
+		overlay.addEventListener('mouseover',entreeCanvas);
+		overlay.addEventListener('mouseout',sortieCanvas);
+		overlay.addEventListener('mousemove', Deplacement);
+		overlay.addEventListener('mouseup',relachementSouris);
+		overlay.addEventListener('mousedown', clicSouris);
+		document.getElementById('tracer').addEventListener('click',function(){etat="pinceau"});
+		document.getElementById('gommer').addEventListener('click',function(){etat="gomme"});
+		document.getElementById('ligne').addEventListener('click',function(){etat="ligne"});
+		document.getElementById('rectangle').addEventListener('click',function(){etat="rectangle"});
+		document.getElementById('new').addEventListener('click',clearCanvas);
+		document.getElementById('save').addEventListener('click',sauvegarderImage);
 		var socket=io.connect("http://localhost:8080");
 		var res=document.getElementById('bcResults');
 		for(var i =0;i<5;i++){
@@ -31,7 +67,7 @@ document.addEventListener("DOMContentLoaded",function(e){
 		});
 		estDessinateur();
 
-
+/*Fonction TP3*/
 function gif(){
 	var image=document.getElementById('bcImage');
 	image.style="display:block";
@@ -212,5 +248,167 @@ socket.on("liste",function(liste) {
 socket.on("bienvenue",function(id) {
 	var login=document.getElementById('login');
 	login.innerHTML=id;
+
 });
+
+/**Fonctions TP2*/
+function clearCanvas(){
+	var dessin = document.getElementById('dessin');
+	var cvsDessin = dessin.getContext('2d');
+	cvsDessin.clearRect(0,0,500,500);
+}
+function clicSouris(){
+
+	canvasOverlay.clearRect(0,0,500,500);
+	instanceCommande.buttonLeftPressed = true;
+	if(etat=="pinceau"){
+		afficheCercle();
+	}
+	if(etat=="gomme"){
+		afficheGomme();
+	}
+	if(etat=="ligne"||etat=="rectangle"){
+		instanceCommande.setCoordonneeDepart();
+	}
+}
+
+function Deplacement(e){
+	var rect = e.target.getBoundingClientRect();
+	var x = e.clientX - rect.left;
+	var y = e.clientY - rect.top;
+	instanceCommande.setCoordonnee(x,y);
+	afficheCurseur();
+	if(instanceCommande.buttonLeftPressed == true){
+		if(etat=="pinceau"){
+			afficheCercle();
+		}
+		if(etat=="gomme"){
+			afficheGomme();
+		}
+	}
+
+}
+function entreeCanvas(){
+	taille=document.getElementById('size').value;
+	afficheCurseur();
+}
+function afficheCurseur(){
+	canvasOverlay.clearRect(0,0,500,500);
+	canvasOverlay.fillStyle = 'RGBa(255,255,255,1)';
+	canvasOverlay.strokeStyle = 'RGBa(255,255,255,1)';
+	if(etat=="pinceau"){
+		afficheCercleCurseur();
+	}
+	if(etat=="gomme"){
+		canvasOverlay.fillRect(instanceCommande.x,instanceCommande.y,taille,taille);
+	}
+	if(etat=="ligne"){
+		if(instanceCommande.buttonLeftPressed){
+			canvasOverlay.beginPath();
+			canvasOverlay.clearRect(0,0,500,500);
+			canvasOverlay.lineWidth = taille;
+			canvasOverlay.moveTo(instanceCommande.xDepart,instanceCommande.yDepart);
+			canvasOverlay.lineTo(instanceCommande.x,instanceCommande.y);
+			canvasOverlay.stroke();
+		}
+		else{
+			afficheCercleCurseur();
+		}	
+	}
+	if(etat=="rectangle"){
+		if(instanceCommande.buttonLeftPressed){
+			var ecartX=instanceCommande.xDepart-instanceCommande.x;
+			var ecartY=instanceCommande.yDepart-instanceCommande.y;
+			canvasOverlay.fillRect(instanceCommande.x,instanceCommande.y,ecartX,ecartY);
+		}
+		else{
+			canvasOverlay.fillRect(instanceCommande.x,instanceCommande.y,15,15);
+		}	
+
+	}
+}
+function afficheCercle(){
+	var dessin = document.getElementById('dessin');
+	var canvasDessin = dessin.getContext('2d');
+	canvasDessin.fillStyle = 'RGB(255,255,255)';
+	var cercle = new Path2D();
+    cercle.arc(instanceCommande.x, instanceCommande.y, taille, 0, 2 * Math.PI);
+    canvasDessin.fill(cercle);
+}
+function afficheGomme(){
+	var dessin = document.getElementById('dessin');
+	var canvasDessin = dessin.getContext('2d');
+	canvasDessin.fillStyle = 'RGB(255,255,255)';
+	canvasDessin.clearRect(instanceCommande.x, instanceCommande.y,taille,taille);
+}
+function afficheCercleCurseur(){
+	var cercle = new Path2D();
+   // cercle.moveTo(125, 35);
+    cercle.arc(instanceCommande.x, instanceCommande.y, taille, 0, 2 * Math.PI);
+    canvasOverlay.fill(cercle);
+}
+function relachementSouris(){
+	instanceCommande.buttonLeftPressed =false;
+	if(etat=="pinceau"){
+		afficheCercle();
+	}
+	if(etat=="gomme"){
+		afficheGomme();
+	}
+	if(etat=="ligne"){
+		afficheLigne();
+	}
+	if(etat=="rectangle"){
+		afficheRectangle();
+	}
+}
+function afficheRectangle(){
+	var dessin = document.getElementById('dessin');
+	var canvasDessin = dessin.getContext('2d');
+	canvasDessin.fillStyle = 'RGBa(255,255,255,1)';
+	var ecartX=instanceCommande.xDepart-instanceCommande.x;
+	var ecartY=instanceCommande.yDepart-instanceCommande.y;
+	canvasDessin.fillRect(instanceCommande.x,instanceCommande.y,ecartX,ecartY);
+}
+function afficheLigne(){
+	var dessin = document.getElementById('dessin');
+	var canvasDessin = dessin.getContext('2d');
+	canvasDessin.beginPath();
+	canvasDessin.strokeStyle = 'RGBa(255,255,255,1)';
+	canvasDessin.lineWidth = taille;
+	canvasDessin.moveTo(instanceCommande.xDepart,instanceCommande.yDepart);
+	canvasDessin.lineTo(instanceCommande.x,instanceCommande.y);
+	canvasDessin.stroke();
+}
+function sortieCanvas(){
+	instanceCommande.buttonLeftPressed = false;
+}
+
+function sauvegarderImage(){
+	var destination = document.getElementById('dessin');
+	var nomSauvegarde=prompt('Nom de la sauvegarde','');
+	localStorage.setItem(nomSauvegarde,destination.toDataURL());
+	var id=document.getElementById("test");
+	id.innerHTML="Les modeles sauvegardés:";
+	for(var i=0;i<localStorage.length;i++){
+		id.innerHTML+=localStorage.key(i)+" | ";
+	}
+}
+function loadImage(){
+	var dessin = document.getElementById('dessin');
+	var canvasDessin = dessin.getContext('2d');
+	canvasDessin.clearRect(0,0,500,500);
+	var nomSauvegarde=prompt('Nom du modele','');
+	var dataURL = localStorage.getItem(nomSauvegarde);
+	if(dataURL==null){
+		alert('Modele Non Existant');
+	}
+	else{
+		var img = new Image();
+		img.src = dataURL;
+		img.onload = function () {
+			canvasDessin.drawImage(img, 0, 0);
+		};
+	}
+}
 });
