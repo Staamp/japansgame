@@ -250,6 +250,13 @@ socket.on("bienvenue",function(id) {
 	login.innerHTML=id;
 
 });
+socket.on("dessinCanvas",function(image){
+	var img = new Image();
+	img.src = image;
+	img.onload = function () {
+		canvasDessin.drawImage(img, 0, 0);
+	};
+});
 
 /**Fonctions TP2*/
 function clearCanvas(){
@@ -258,7 +265,7 @@ function clearCanvas(){
 	cvsDessin.clearRect(0,0,500,500);
 }
 function clicSouris(){
-
+	appelleSocketCanvas("lol");
 	canvasOverlay.clearRect(0,0,500,500);
 	instanceCommande.buttonLeftPressed = true;
 	if(etat=="pinceau"){
@@ -272,7 +279,7 @@ function clicSouris(){
 	}
 }
 function appelleSocketCanvas(img){
-	socket.emit("dessinCanvas",img);
+	socket.emit("dessinCanvas",document.getElementById('dessin').toDataURL());
 }	
 function Deplacement(e){
 	var rect = e.target.getBoundingClientRect();
@@ -282,9 +289,11 @@ function Deplacement(e){
 	afficheCurseur();
 	if(instanceCommande.buttonLeftPressed == true){
 		if(etat=="pinceau"){
+			appelleSocketCanvas("lol");
 			afficheCercle();
 		}
 		if(etat=="gomme"){
+			appelleSocketCanvas("lol");
 			afficheGomme();
 		}
 	}
@@ -414,4 +423,6 @@ function loadImage(){
 		};
 	}
 }
+
+
 });
