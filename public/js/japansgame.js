@@ -255,6 +255,7 @@ socket.on("dessinCanvas",function(image){
 	img.src = image;
 	img.onload = function () {
 		canvasDessin.drawImage(img, 0, 0);
+		console.log();
 	};
 });
 
@@ -265,7 +266,6 @@ function clearCanvas(){
 	cvsDessin.clearRect(0,0,500,500);
 }
 function clicSouris(){
-	appelleSocketCanvas("lol");
 	canvasOverlay.clearRect(0,0,500,500);
 	instanceCommande.buttonLeftPressed = true;
 	if(etat=="pinceau"){
@@ -279,7 +279,7 @@ function clicSouris(){
 	}
 }
 function appelleSocketCanvas(img){
-	socket.emit("dessinCanvas",document.getElementById('dessin').toDataURL());
+	socket.emit("dessinCanvas",document.getElementById('dessin').toDataURL(),);
 }	
 function Deplacement(e){
 	var rect = e.target.getBoundingClientRect();
@@ -289,11 +289,9 @@ function Deplacement(e){
 	afficheCurseur();
 	if(instanceCommande.buttonLeftPressed == true){
 		if(etat=="pinceau"){
-			appelleSocketCanvas("lol");
 			afficheCercle();
 		}
 		if(etat=="gomme"){
-			appelleSocketCanvas("lol");
 			afficheGomme();
 		}
 	}
@@ -359,7 +357,6 @@ function afficheCercleCurseur(){
     canvasOverlay.fill(cercle);
 }
 function relachementSouris(){
-	appelleSocketCanvas("lol");
 	instanceCommande.buttonLeftPressed =false;
 	if(etat=="pinceau"){
 		afficheCercle();
@@ -373,6 +370,7 @@ function relachementSouris(){
 	if(etat=="rectangle"){
 		afficheRectangle();
 	}
+	appelleSocketCanvas("lol");
 }
 function afficheRectangle(){
 	var dessin = document.getElementById('dessin');
@@ -423,6 +421,18 @@ function loadImage(){
 		};
 	}
 }
+socket.on("dessinCanvas",function(image){
+	if(!isDessinateur){
+		var dessin = document.getElementById('dessin');
+		var canvasDessin = dessin.getContext('2d');
+		canvasDessin.clearRect(0,0,500,500);
+		var img = new Image();
+		img.src = image;
+		img.onload = function () {
+			canvasDessin.drawImage(img, 0, 0);
+		};
+	}
+});
 
 
 });
