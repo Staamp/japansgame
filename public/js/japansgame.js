@@ -45,6 +45,7 @@ document.addEventListener("DOMContentLoaded",function(e){
 		document.getElementById('rectangle').addEventListener('click',function(){etat="rectangle"});
 		document.getElementById('new').addEventListener('click',clearCanvas);
 		document.getElementById('save').addEventListener('click',sauvegarderImage);
+		document.getElementById('start').addEventListener('click',lancementPartie);
 		var socket=io.connect("http://localhost:8080");
 		var res=document.getElementById('bcResults');
 		for(var i =0;i<5;i++){
@@ -152,6 +153,9 @@ function detecteImage(text){
 	}
 	return "<img src="+text.substring(indiceDepart, indiceFin)+">";
 }
+function lancementPartie(){
+	socket.emit("lancementPartie");
+}
 function timeConverter(UNIX_timestamp){
   var a = new Date(UNIX_timestamp );
   var hour = a.getHours();
@@ -205,12 +209,11 @@ function envoyer(){
 	}
 }
 function envoyerImage(src){
-	console.log("ok");
 	var main=document.getElementsByTagName('main')[0];
-
 	socket.emit("message",{from:NomUtilisateur, to:null, text:"<img src="+src+">", date:Date.now()});
 
 }
+
 socket.on("message",function(msg) {
 	var main=document.getElementsByTagName('main')[0];
 	console.log(msg);
@@ -236,6 +239,7 @@ socket.on("message",function(msg) {
 		main.innerHTML+="<span class=system>[admin]"+msg.text+"<br></span>";
 	}
 });
+
 socket.on("liste",function(liste) {
 	listeUser=liste;
 	var aside=document.getElementsByTagName('aside')[0];
@@ -245,17 +249,20 @@ socket.on("liste",function(liste) {
 	}
 	console.log(liste);
 });
+
 socket.on("bienvenue",function(id) {
 	var login=document.getElementById('login');
 	login.innerHTML=id;
 
 });
+
 socket.on("dessinCanvas",function(image){
+	var dessin = document.getElementById('dessin');
+	var canvasDessin = dessin.getContext('2d');
 	var img = new Image();
 	img.src = image;
 	img.onload = function () {
 		canvasDessin.drawImage(img, 0, 0);
-		console.log();
 	};
 });
 
@@ -265,6 +272,7 @@ function clearCanvas(){
 	var cvsDessin = dessin.getContext('2d');
 	cvsDessin.clearRect(0,0,500,500);
 }
+
 function clicSouris(){
 	canvasOverlay.clearRect(0,0,500,500);
 	instanceCommande.buttonLeftPressed = true;
@@ -278,9 +286,11 @@ function clicSouris(){
 		instanceCommande.setCoordonneeDepart();
 	}
 }
+
 function appelleSocketCanvas(img){
 	socket.emit("dessinCanvas",document.getElementById('dessin').toDataURL(),);
-}	
+}
+
 function Deplacement(e){
 	var rect = e.target.getBoundingClientRect();
 	var x = e.clientX - rect.left;
@@ -295,12 +305,13 @@ function Deplacement(e){
 			afficheGomme();
 		}
 	}
-
 }
+
 function entreeCanvas(){
 	taille=document.getElementById('size').value;
 	afficheCurseur();
 }
+
 function afficheCurseur(){
 	canvasOverlay.clearRect(0,0,500,500);
 	canvasOverlay.fillStyle = 'RGBa(255,255,255,1)';
@@ -336,6 +347,7 @@ function afficheCurseur(){
 
 	}
 }
+
 function afficheCercle(){
 	var dessin = document.getElementById('dessin');
 	var canvasDessin = dessin.getContext('2d');
@@ -344,18 +356,21 @@ function afficheCercle(){
     cercle.arc(instanceCommande.x, instanceCommande.y, taille, 0, 2 * Math.PI);
     canvasDessin.fill(cercle);
 }
+
 function afficheGomme(){
 	var dessin = document.getElementById('dessin');
 	var canvasDessin = dessin.getContext('2d');
 	canvasDessin.fillStyle = 'RGB(255,255,255)';
 	canvasDessin.clearRect(instanceCommande.x, instanceCommande.y,taille,taille);
 }
+
 function afficheCercleCurseur(){
 	var cercle = new Path2D();
    // cercle.moveTo(125, 35);
     cercle.arc(instanceCommande.x, instanceCommande.y, taille, 0, 2 * Math.PI);
     canvasOverlay.fill(cercle);
 }
+
 function relachementSouris(){
 	instanceCommande.buttonLeftPressed =false;
 	if(etat=="pinceau"){
@@ -372,6 +387,7 @@ function relachementSouris(){
 	}
 	appelleSocketCanvas("lol");
 }
+
 function afficheRectangle(){
 	var dessin = document.getElementById('dessin');
 	var canvasDessin = dessin.getContext('2d');
@@ -433,6 +449,14 @@ socket.on("dessinCanvas",function(image){
 		};
 	}
 });
-
+socket.on("designeDessinateur",function(i){
+	console.log("designation CLient"+i);
+	if(i==NomUtilisateur){
+		isDessinateur=true;
+	}
+	else{
+		document.getElementById('toolbox').style.display="none";
+	}
+});
 
 });

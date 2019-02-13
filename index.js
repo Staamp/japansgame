@@ -1,3 +1,6 @@
+function getRandomInt(max) {
+  return Math.floor(Math.random() * Math.floor(max));
+}
 // Chargement des modules 
 var express = require('express');
 var app = express();
@@ -111,6 +114,12 @@ io.on('connection', function (socket) {
         console.log("image recue"+img);
 	io.sockets.emit("dessinCanvas", img);
     });
-    
-    
+
+
+    socket.on("lancementPartie", function () {
+        var i =getRandomInt(Object.keys(clients).length);
+        console.log(i);
+        console.log(Object.keys(clients)[i]);
+        io.sockets.emit("designeDessinateur",Object.keys(clients)[i]);
+    });
 });
