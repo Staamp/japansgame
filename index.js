@@ -110,8 +110,6 @@ io.on('connection', function (socket) {
 
      socket.on("dessinCanvas", function(img) { 
         // si client était identifié
-        
-        console.log("image recue"+img);
 	io.sockets.emit("dessinCanvas", img);
     });
 

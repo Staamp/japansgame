@@ -450,11 +450,13 @@ socket.on("dessinCanvas",function(image){
 	}
 });
 socket.on("designeDessinateur",function(i){
-	console.log("designation CLient"+i);
 	if(i==NomUtilisateur){
+		etat="pinceau";
+		document.getElementById('toolbox').style.display="";
 		isDessinateur=true;
 	}
 	else{
+		etat="";
 		document.getElementById('toolbox').style.display="none";
 	}
 });
