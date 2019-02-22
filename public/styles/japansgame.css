@@ -11,6 +11,15 @@ body > div {
     border: solid 1px #A0A0A0;
 }
 
+#debutTour {
+    left: 0%;
+    top: 0%;
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    background-color: blue;
+}
+
 #content {
     position: absolute;
     top:30px;
@@ -152,18 +161,14 @@ body > div {
 .malade {
     background-position: -52px -52px;   
 }
-        
-        
-body > div, body > input[type=radio] {
-    display: none;   
-}
+
         
 input[type=radio]:checked + div {
     display: block;   
 }
     
         
-#logScreen {
+#logScreen, input[name="btnScreen"] {
     background: rgba(200, 200, 200, 0.8);
     position: absolute; 
     top: 0;
@@ -185,11 +190,15 @@ input[type=radio]:checked + div {
     border-radius: 10px;
     box-shadow: 10px 10px 10px #000;
 }
-#logScreen input, #bcImages input {
+#logScreen input, #radio1, #radio2 {
     padding: 3px;
     font-size: 80%;
     margin: 10px;
 }
+#debutTour{
+    display: none;
+}
+
 
 #bcImage {
     width: 400px;
@@ -402,7 +411,9 @@ main {
     top: 5vh;
     text-align: center;
 }
-
+#all{
+    display: none;
+}
 #choix {
     margin-top: 8vh;
     display: flex;
@@ -411,7 +422,13 @@ main {
     align-items: center;
     align-content: flex-start;
 }
-
+#debutTour > p {
+    position: absolute;
+    top:50%;
+    text-align: center;
+    color: white;
+    font-size: 30px;
+}
 #choix > * {
     cursor: pointer;   
     align-self: flex-start;

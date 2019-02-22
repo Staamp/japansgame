@@ -114,10 +114,8 @@ function ecouteur(){
 function connexion(){
 	NomUtilisateur=document.getElementById('pseudo').value;
 	socket.emit("login",NomUtilisateur);
-	var radio1=document.getElementById('radio1');
-	radio1.checked=0;
-	var radio2=document.getElementById('radio2');
-	radio2.checked=1;
+	document.getElementById('all').style.display="block";
+	document.getElementById('logScreen').style.display="none";
 }
 function estDessinateur(){
 	var toolbox=document.getElementById('toolbox');
@@ -449,15 +447,31 @@ socket.on("dessinCanvas",function(image){
 		};
 	}
 });
+socket.on("setTimer",function(time){
+	document.getElementById('timer').innerHTML=time;
+	if(time==25){
+		document.getElementById('all').style.display="block";
+		document.getElementById('debutTour').style.display="none";
+	}
+});
 socket.on("designeDessinateur",function(i){
+	if(document.getElementById('all').style.display!="none"){
+	var dessin = document.getElementById('dessin');
+	var canvasDessin = dessin.getContext('2d');
+	canvasDessin.clearRect(0,0,500,500);
+	document.getElementById('all').style.display="none";
+	document.getElementById('debutTour').style.display="block";
 	if(i==NomUtilisateur){
+		document.getElementById('debutTour').innerHTML="<p>Vous êtes le dessinateur!</p>";
 		etat="pinceau";
 		document.getElementById('toolbox').style.display="";
 		isDessinateur=true;
 	}
 	else{
+		document.getElementById('debutTour').innerHTML="<p>"+i+" est le dessinateur!</p>";
 		etat="";
 		document.getElementById('toolbox').style.display="none";
+	}
 	}
 });
 

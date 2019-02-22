@@ -1,3 +1,5 @@
+var secondes= 30;
+
 function getRandomInt(max) {
   return Math.floor(Math.random() * Math.floor(max));
 }
@@ -119,5 +121,20 @@ io.on('connection', function (socket) {
         console.log(i);
         console.log(Object.keys(clients)[i]);
         io.sockets.emit("designeDessinateur",Object.keys(clients)[i]);
+        decrementerChrono();
     });
+    function decrementerChrono(){
+        console.log(secondes); 
+        if(secondes>0){
+            secondes--;
+            io.sockets.emit("setTimer",secondes);
+            setTimeout(decrementerChrono,1000);
+        }
+        else{
+            var i =getRandomInt(Object.keys(clients).length);
+            io.sockets.emit("designeDessinateur",Object.keys(clients)[i]);
+            secondes=30;
+            decrementerChrono();
+        }
+    }
 });
