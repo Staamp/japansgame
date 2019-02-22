@@ -20,6 +20,18 @@ app.get('/', function(req, res) {
     res.sendFile(__dirname + '/public/japansgame.html');
 });
 
+var alphabet = null; 
+
+// "à l'ancienne" avec un appel AJAX
+var xhttp = new XMLHttpRequest(); 
+xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+        alphabet = JSON.parse(this.responseText);
+    }
+}
+xhttp.open("GET", "./public/js/alphabet.json", true);
+xhttp.send();
+
 
 
 /*** Gestion des clients et des connexions ***/

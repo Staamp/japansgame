@@ -24,6 +24,9 @@ var taille=5;
 var instanceCommande=new command();
 var overlay;
 var canvasOverlay;
+var essai=3;
+var elimine=false;
+var gagne=false;
 document.addEventListener("DOMContentLoaded",function(e){
 		var NomUtilisateur;
 		var listeUser;
@@ -172,6 +175,7 @@ function timeConverter(UNIX_timestamp){
   return time;
 }
 function envoyer(){
+	essai--;
 	var main=document.getElementsByTagName('main')[0];
 	var txt=document.getElementById('monMessage').value;
 	if(txt.indexOf('@')==0){
@@ -455,6 +459,7 @@ socket.on("setTimer",function(time){
 	}
 });
 socket.on("designeDessinateur",function(i){
+	essai=3;
 	if(document.getElementById('all').style.display!="none"){
 	var dessin = document.getElementById('dessin');
 	var canvasDessin = dessin.getContext('2d');
