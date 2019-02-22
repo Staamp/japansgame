@@ -16,6 +16,8 @@ class command{
 	}
 
 }
+var numeroMot;
+var mot;
 var isDessinateur=false;
 var id;
 var result;
@@ -439,6 +441,9 @@ function loadImage(){
 		};
 	}
 }
+function envoiMot(data,num){
+	socket.emit("choixMot",data[num]);
+}
 socket.on("dessinCanvas",function(image){
 	if(!isDessinateur){
 		var dessin = document.getElementById('dessin');
@@ -454,11 +459,14 @@ socket.on("dessinCanvas",function(image){
 socket.on("setTimer",function(time){
 	document.getElementById('timer').innerHTML=time;
 	if(time==25){
+		if(numeroMot==null){
+			numeroMot=0;
+		}
 		document.getElementById('all').style.display="block";
 		document.getElementById('debutTour').style.display="none";
 	}
 });
-socket.on("designeDessinateur",function(i){
+socket.on("designeDessinateur",function(i,data){
 	essai=3;
 	if(document.getElementById('all').style.display!="none"){
 	var dessin = document.getElementById('dessin');
@@ -467,7 +475,8 @@ socket.on("designeDessinateur",function(i){
 	document.getElementById('all').style.display="none";
 	document.getElementById('debutTour').style.display="block";
 	if(i==NomUtilisateur){
-		document.getElementById('debutTour').innerHTML="<p>Vous êtes le dessinateur!</p>";
+		numeroMot=null;
+		document.getElementById('debutTour').innerHTML="<p>Vous êtes le dessinateur!<button type='button' onclick=envoiMot(data,0)>"+data[0]+"</button>,<button type='button' onclick=envoiMot(data,1)>"+data[1]+"</button>,<button type='button' onclick=envoiMot(data,2)>"+data[2]+"</button></p>";
 		etat="pinceau";
 		document.getElementById('toolbox').style.display="";
 		isDessinateur=true;
