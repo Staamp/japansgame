@@ -11,7 +11,7 @@ body > div {
     border: solid 1px #A0A0A0;
 }
 #gagnant{
-    color: green;
+    background-color: green;
 }
 #debutTour {
     left: 0%;

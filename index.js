@@ -74,7 +74,7 @@ io.on('connection', function (socket) {
         socket.broadcast.emit("message", { from: null, to: null, text: currentID + " a rejoint la discussion", date: Date.now() } );
         // envoi de la nouvelle liste à tous les clients connectés 
         io.sockets.emit("liste", Object.keys(clients),scores);
-        if(Object.keys(clients).length>1){
+        if(Object.keys(clients).length==1){
             var i =getRandomInt(Object.keys(clients).length);
             console.log(i);
             console.log(Object.keys(clients)[i]);
@@ -96,13 +96,7 @@ io.on('connection', function (socket) {
             scores[msg.from]+=secondes;
             socket.emit("gagnant",msg.from);
             if(nbreGagant==Object.keys(clients).length-1 && Object.keys(clients).length!=1){
-                var i =getRandomInt(Object.keys(clients).length);
-                console.log(i);
-                console.log(Object.keys(clients)[i]);
-                io.sockets.emit("liste", Object.keys(clients),scores);
-                io.sockets.emit("designeDessinateur",Object.keys(clients)[i]);
-                console.log("DESIGNE"+Object.keys(clients)[i]);
-                decrementerChrono();
+               secondes=0;
             }
         } 
         // si jamais la date n'existe pas, on la rajoute
@@ -186,6 +180,7 @@ io.on('connection', function (socket) {
             var i =getRandomInt(Object.keys(clients).length);
             mots=send3data(alphabet.hiragana);
             console.log(mots);
+             io.sockets.emit("liste", Object.keys(clients),scores);
             io.sockets.emit("designeDessinateur",Object.keys(clients)[i],mots);
             secondes=30;
             decrementerChrono();
