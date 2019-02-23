@@ -246,12 +246,14 @@ socket.on("message",function(msg) {
 	}
 });
 
-socket.on("liste",function(liste) {
+socket.on("liste",function(liste,score) {
+	console.log("recu"+score);
 	listeUser=liste;
+	scoreUser=score;
 	var aside=document.getElementsByTagName('aside')[0];
 	aside.innerHTML="";
 	for(var user in liste){
-		aside.innerHTML+=liste[user]+"<br>";
+		aside.innerHTML+=liste[user]+"-"+score[liste[user]]+"<br>";
 	}
 	console.log(liste);
 });
@@ -495,10 +497,10 @@ socket.on("gagnant",function(name){
 	aside.innerHTML="";
 	for(var user in listeUser){
 		if(gagnantTour.includes(listeUser[user])){
-			aside.innerHTML+="<span id=gagnant>"+listeUser[user]+"</span><br>";
+			aside.innerHTML+="<span id=gagnant>"+listeUser[user]+"-"+scoreUser[listeUser[user]]+"</span><br>";
 		}
 		else{
-			aside.innerHTML+=listeUser[user]+"<br>";
+			aside.innerHTML+=listeUser[user]+"-"+scoreUser[listeUser[user]]+"<br>";
 		}
 	}
 });
