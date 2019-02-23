@@ -1,5 +1,7 @@
 var secondes= 30;
-
+var mots;
+var motaDeviner;
+var nbreGagant=0;
 function getRandomInt(max) {
   return Math.floor(Math.random() * Math.floor(max));
 }
@@ -79,7 +81,18 @@ io.on('connection', function (socket) {
      *  @param  msg     Object  le message à transférer à tous  
      */
     socket.on("message", function(msg) {
-        console.log("Reçu message");   
+        console.log("Reçu message"); 
+        if(motaDeviner==msg.text){
+            nbreGagant++;
+            socket.emit("gagnant",msg.from);
+            if(nbreGagant==Object.keys(clients).length-1 && Object.keys(clients).length!=1){
+                 var i =getRandomInt(Object.keys(clients).length);
+                console.log(i);
+                console.log(Object.keys(clients)[i]);
+                io.sockets.emit("designeDessinateur",Object.keys(clients)[i]);
+                decrementerChrono();
+            }
+        } 
         // si jamais la date n'existe pas, on la rajoute
         msg.date = Date.now();
         // si message privé, envoi seulement au destinataire
@@ -135,6 +148,10 @@ io.on('connection', function (socket) {
         // si client était identifié
 	io.sockets.emit("dessinCanvas", img);
     });
+     socket.on("choixMot", function(num) { 
+        // si client était identifié
+       motaDeviner=mots[num];
+    });
 
 
     socket.on("lancementPartie", function () {
@@ -153,7 +170,7 @@ io.on('connection', function (socket) {
         }
         else{
             var i =getRandomInt(Object.keys(clients).length);
-            var mots=send3data(alphabet.hiragana);
+            mots=send3data(alphabet.hiragana);
             console.log(mots);
             io.sockets.emit("designeDessinateur",Object.keys(clients)[i],mots);
             secondes=30;

@@ -16,6 +16,7 @@ class command{
 	}
 
 }
+var gagnantTour=[];
 var numeroMot;
 var mot;
 var isDessinateur=false;
@@ -29,6 +30,8 @@ var canvasOverlay;
 var essai=3;
 var elimine=false;
 var gagne=false;
+var socket=io.connect("http://localhost:8080");
+
 document.addEventListener("DOMContentLoaded",function(e){
 		var NomUtilisateur;
 		var listeUser;
@@ -51,7 +54,6 @@ document.addEventListener("DOMContentLoaded",function(e){
 		document.getElementById('new').addEventListener('click',clearCanvas);
 		document.getElementById('save').addEventListener('click',sauvegarderImage);
 		document.getElementById('start').addEventListener('click',lancementPartie);
-		var socket=io.connect("http://localhost:8080");
 		var res=document.getElementById('bcResults');
 		for(var i =0;i<5;i++){
 			res.innerHTML+="<div  id=id"+i+"></div>";
@@ -254,6 +256,7 @@ socket.on("liste",function(liste) {
 	console.log(liste);
 });
 
+
 socket.on("bienvenue",function(id) {
 	var login=document.getElementById('login');
 	login.innerHTML=id;
@@ -441,9 +444,6 @@ function loadImage(){
 		};
 	}
 }
-function envoiMot(data,num){
-	socket.emit("choixMot",data[num]);
-}
 socket.on("dessinCanvas",function(image){
 	if(!isDessinateur){
 		var dessin = document.getElementById('dessin');
@@ -471,12 +471,13 @@ socket.on("designeDessinateur",function(i,data){
 	if(document.getElementById('all').style.display!="none"){
 	var dessin = document.getElementById('dessin');
 	var canvasDessin = dessin.getContext('2d');
+	gagnantTour=[];
 	canvasDessin.clearRect(0,0,500,500);
 	document.getElementById('all').style.display="none";
 	document.getElementById('debutTour').style.display="block";
 	if(i==NomUtilisateur){
 		numeroMot=null;
-		document.getElementById('debutTour').innerHTML="<p>Vous êtes le dessinateur!<button type='button' onclick=envoiMot(data,0)>"+data[0]+"</button>,<button type='button' onclick=envoiMot(data,1)>"+data[1]+"</button>,<button type='button' onclick=envoiMot(data,2)>"+data[2]+"</button></p>";
+		document.getElementById('debutTour').innerHTML="<p>Vous êtes le dessinateur!<button type='button' onclick=onclick=envoiMot(0)>"+data[0]+"</button>,<button type='button' onclick=envoiMot(1)>"+data[1]+"</button>,<button type='button' onclick=envoiMot(2)>"+data[2]+"</button></p>";
 		etat="pinceau";
 		document.getElementById('toolbox').style.display="";
 		isDessinateur=true;
@@ -488,5 +489,20 @@ socket.on("designeDessinateur",function(i,data){
 	}
 	}
 });
-
+socket.on("gagnant",function(name){
+	gagnantTour.push(name);
+	var aside=document.getElementsByTagName('aside')[0];
+	aside.innerHTML="";
+	for(var user in listeUser){
+		if(gagnantTour.includes(listeUser[user])){
+			aside.innerHTML+="<span id=gagnant>"+listeUser[user]+"</span><br>";
+		}
+		else{
+			aside.innerHTML+=listeUser[user]+"<br>";
+		}
+	}
 });
+});
+function envoiMot(num){
+	socket.emit("choixMot",num);
+}
