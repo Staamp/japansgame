@@ -53,6 +53,7 @@ document.addEventListener("DOMContentLoaded",function(e){
 		document.getElementById('ligne').addEventListener('click',function(){etat="ligne"});
 		document.getElementById('rectangle').addEventListener('click',function(){etat="rectangle"});
 		document.getElementById('new').addEventListener('click',clearCanvas);
+		document.getElementById('start').addEventListener('click',function(){socket.emit("go");});
 		var res=document.getElementById('bcResults');
 		for(var i =0;i<5;i++){
 			res.innerHTML+="<div  id=id"+i+"></div>";
@@ -475,6 +476,7 @@ socket.on("setTimer",function(time){
 socket.on("designeDessinateur",function(i,data){
 	essai=3;
 	if(document.getElementById('all').style.display!="none"&&document.getElementById('logScreen').style.display=="none"){
+		document.getElementById('classement').innerHTML="";
 		var dessin = document.getElementById('dessin');
 		var canvasDessin = dessin.getContext('2d');
 		gagnantTour=[];
@@ -507,6 +509,7 @@ socket.on("manche",function(nombre){
 socket.on("finPartie",function(scores){
 	console.log("FIN PARTIE");
 	document.getElementById('all').style.display="none";
+	document.getElementById('finManche').innerHTML="";
 	document.getElementById('debutTour').style.display="block";
 	var copieScore=scores;
 	for(var classement in copieScore){
@@ -515,6 +518,7 @@ socket.on("finPartie",function(scores){
 		}
 	}
 	var compteur=1;
+	document.getElementById('classement').innerHTML="Classement de la partie<br>";
 	for(var classement in copieScore){
 		var max=0;
 		var userMax;
@@ -524,8 +528,8 @@ socket.on("finPartie",function(scores){
 				userMax=user;
 			}
 		}
-		document.getElementById('classement').innerHTML+=compteur+") "+userMax+"<br>";
-		delete copieScore[userMax];
+		document.getElementById('classement').innerHTML+=compteur+") "+userMax+" avec "+copieScore[userMax]+"points<br>";
+		copieScore[userMax]=-1;
 		compteur++;
 	}
 });
