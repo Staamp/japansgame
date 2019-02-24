@@ -30,6 +30,7 @@ var canvasOverlay;
 var essai=3;
 var elimine=false;
 var gagne=false;
+var dataUser;
 var socket=io.connect("http://localhost:8080");
 
 document.addEventListener("DOMContentLoaded",function(e){
@@ -52,8 +53,6 @@ document.addEventListener("DOMContentLoaded",function(e){
 		document.getElementById('ligne').addEventListener('click',function(){etat="ligne"});
 		document.getElementById('rectangle').addEventListener('click',function(){etat="rectangle"});
 		document.getElementById('new').addEventListener('click',clearCanvas);
-		document.getElementById('save').addEventListener('click',sauvegarderImage);
-		document.getElementById('start').addEventListener('click',lancementPartie);
 		var res=document.getElementById('bcResults');
 		for(var i =0;i<5;i++){
 			res.innerHTML+="<div  id=id"+i+"></div>";
@@ -73,7 +72,12 @@ document.addEventListener("DOMContentLoaded",function(e){
 		document.getElementById("id4").addEventListener('click',function(){
 			envoyerImage(res.getElementsByTagName('img')[4].src);
 		});
-		estDessinateur();
+		document.getElementById("monMessage").addEventListener('keypress', function (e) {
+		    var key = e.which || e.keyCode;
+		    if (key === 13) { 
+		    	envoyer();
+		    }
+    	});
 
 /*Fonction TP3*/
 function gif(){
@@ -460,7 +464,7 @@ socket.on("dessinCanvas",function(image){
 });
 socket.on("setTimer",function(time){
 	document.getElementById('timer').innerHTML=time;
-	if(time==25){
+	if(time==25&&document.getElementById('logScreen').style.display=="none"){
 		if(numeroMot==null){
 			numeroMot=0;
 		}
@@ -470,29 +474,35 @@ socket.on("setTimer",function(time){
 });
 socket.on("designeDessinateur",function(i,data){
 	essai=3;
-	if(document.getElementById('all').style.display!="none"){
-	var dessin = document.getElementById('dessin');
-	var canvasDessin = dessin.getContext('2d');
-	gagnantTour=[];
-	canvasDessin.clearRect(0,0,500,500);
-	document.getElementById('all').style.display="none";
-	document.getElementById('debutTour').style.display="block";
-	if(i==NomUtilisateur){
-		numeroMot=null;
-		document.getElementById('debutTour').innerHTML="<p>Vous êtes le dessinateur!<button type='button' onclick=onclick=envoiMot(0)>"+data[0]+"</button>,<button type='button' onclick=envoiMot(1)>"+data[1]+"</button>,<button type='button' onclick=envoiMot(2)>"+data[2]+"</button></p>";
-		etat="pinceau";
-		document.getElementById('toolbox').style.display="";
-		isDessinateur=true;
-	}
-	else{
-		document.getElementById('debutTour').innerHTML="<p>"+i+" est le dessinateur!</p>";
-		etat="";
-		document.getElementById('toolbox').style.display="none";
-	}
+	if(document.getElementById('all').style.display!="none"&&document.getElementById('logScreen').style.display=="none"){
+		var dessin = document.getElementById('dessin');
+		var canvasDessin = dessin.getContext('2d');
+		gagnantTour=[];
+		canvasDessin.clearRect(0,0,500,500);
+		document.getElementById('all').style.display="none";
+		document.getElementById('debutTour').style.display="block";
+		if(i==NomUtilisateur){
+			numeroMot=null;
+			dataUser=data;
+			document.getElementById('debutTour').innerHTML="<p>Vous êtes le dessinateur!<button type='button' onclick=onclick=envoiMot(0)>"+data[0]+"</button>,<button type='button' onclick=envoiMot(1)>"+data[1]+"</button>,<button type='button' onclick=envoiMot(2)>"+data[2]+"</button></p>";
+			
+			etat="pinceau";
+			document.getElementById('toolbox').style.display="";
+			isDessinateur=true;
+		}
+		else{
+			document.getElementById('debutTour').innerHTML="<p>"+i+" est le dessinateur!</p>";
+			etat="";
+			document.getElementById('toolbox').style.display="none";
+			document.getElementById('syllabe').innerHTML="";
+		}
 	}
 });
-socket.on("gagnant",function(name){
-	gagnantTour.push(name);
+socket.on("essai",function(nombre){
+	document.getElementById('essai').innerHTML="Essai="+nombre;
+});
+socket.on("listegagnant",function(l){
+	gagnantTour=l;
 	var aside=document.getElementsByTagName('aside')[0];
 	aside.innerHTML="";
 	for(var user in listeUser){
@@ -505,6 +515,14 @@ socket.on("gagnant",function(name){
 	}
 });
 });
+socket.on("help",function(lettre){
+	document.getElementById('syllabe').innerHTML+="-&#"+lettre+";";
+});
+
+function help(){
+	socket.emit("help");
+}
 function envoiMot(num){
+	document.getElementById('syllabe').innerHTML=dataUser[num]+"<button onclick=help()>Help</button>";
 	socket.emit("choixMot",num);
 }
