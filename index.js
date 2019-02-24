@@ -4,6 +4,7 @@ var motaDeviner;
 var nbreGagant=0;
 var dessinateur;
 var dessinateurManche=[];
+var manche=0;
 function getRandomInt(max) {
   return Math.floor(Math.random() * Math.floor(max));
 }
@@ -70,10 +71,13 @@ io.on('connection', function (socket) {
         }
         currentID = id;
         clients[currentID] = socket;
-        scores[currentID]=0;
+        if(currentID!=undefined){
+            scores[currentID]=0;
+        }
         console.log("Nouvel utilisateur : " + currentID);
         // envoi d'un message de bienvenue à ce client
         socket.emit("bienvenue", id);
+       socket.emit("essai", manche);
         // envoi aux autres clients 
         socket.broadcast.emit("message", { from: null, to: null, text: currentID + " a rejoint la discussion", date: Date.now() } );
         // envoi de la nouvelle liste à tous les clients connectés 
@@ -202,33 +206,34 @@ io.on('connection', function (socket) {
             setTimeout(decrementerChrono,1000);
         }
         else{
-            scores[dessinateur]=gagnant.length*10/Object.keys(clients).length;
-            dessinateurManche.push(dessinateur);
+            if(dessinateur!=undefined){
+                scores[dessinateur]=Math.round((gagnant.length+1)*30/Object.keys(clients).length);
+                dessinateurManche.push(dessinateur);
+            }
             if(isMancheFinie()){
-                console.log("Manche finie");
+                manche++;
+                if(manche==1){
+                     io.sockets.emit("finPartie", scores);
+                     for(var i in scores){
+                        scores[i]=0;
+                    }
+                }
+               io.sockets.emit("essai", 3);
                 dessinateurManche=[];
             }
             
             do{
                 var i =getRandomInt(Object.keys(clients).length);
                 mots=send3data(alphabet.hiragana);
-                console.log(mots);
-                io.sockets.emit("liste", Object.keys(clients),scores);
-                io.sockets.emit("designeDessinateur",Object.keys(clients)[i],mots);
+                //console.log(mots);
                 dessinateur=Object.keys(clients)[i];
             }
             while(dessinateurManche.includes(dessinateur));
-            /*
-
-            var i =getRandomInt(Object.keys(clients).length);
-            mots=send3data(alphabet.hiragana);
-            console.log(mots);
             io.sockets.emit("liste", Object.keys(clients),scores);
             io.sockets.emit("designeDessinateur",Object.keys(clients)[i],mots);
-            dessinateur=Object.keys(clients)[i];
-            */
             secondes=30;
             gagnant=[];
+            nbreGagant=0;
             for(var user in NbEssai){
                 NbEssai[user]=3;
             }
@@ -238,7 +243,10 @@ io.on('connection', function (socket) {
     function isMancheFinie(){
         var finie=true;
         for(var joueur in Object.keys(clients)){
-            if(!dessinateurManche.includes(joueur)){
+            console.log(Object.keys(clients)[joueur]);
+            console.log(dessinateurManche);
+            if(!dessinateurManche.includes(Object.keys(clients)[joueur])){
+                console.log("Passage if");
                 finie=false;
             }
         }

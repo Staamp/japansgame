@@ -21,7 +21,10 @@ body > div {
     width: 100%;
     background-color: blue;
 }
-
+#classement{
+    color: white;
+    font-size: 30px;
+}
 #content {
     position: absolute;
     top:30px;
@@ -424,7 +427,7 @@ main {
     align-items: center;
     align-content: flex-start;
 }
-#debutTour > p {
+#debutTour  p {
     position: absolute;
     top:50%;
     text-align: center;

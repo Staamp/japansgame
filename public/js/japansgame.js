@@ -484,14 +484,14 @@ socket.on("designeDessinateur",function(i,data){
 		if(i==NomUtilisateur){
 			numeroMot=null;
 			dataUser=data;
-			document.getElementById('debutTour').innerHTML="<p>Vous êtes le dessinateur!<button type='button' onclick=onclick=envoiMot(0)>"+data[0]+"</button>,<button type='button' onclick=envoiMot(1)>"+data[1]+"</button>,<button type='button' onclick=envoiMot(2)>"+data[2]+"</button></p>";
+			document.getElementById('finManche').innerHTML="<p>Vous êtes le dessinateur!<button type='button' onclick=onclick=envoiMot(0)>"+data[0]+"</button>,<button type='button' onclick=envoiMot(1)>"+data[1]+"</button>,<button type='button' onclick=envoiMot(2)>"+data[2]+"</button></p>";
 			
 			etat="pinceau";
 			document.getElementById('toolbox').style.display="";
 			isDessinateur=true;
 		}
 		else{
-			document.getElementById('debutTour').innerHTML="<p>"+i+" est le dessinateur!</p>";
+			document.getElementById('finManche').innerHTML="<p>"+i+" est le dessinateur!</p>";
 			etat="";
 			document.getElementById('toolbox').style.display="none";
 			document.getElementById('syllabe').innerHTML="";
@@ -500,6 +500,34 @@ socket.on("designeDessinateur",function(i,data){
 });
 socket.on("essai",function(nombre){
 	document.getElementById('essai').innerHTML="Essai="+nombre;
+});
+socket.on("manche",function(nombre){
+	document.getElementById('manche').innerHTML="manche="+nombre;
+});
+socket.on("finPartie",function(scores){
+	console.log("FIN PARTIE");
+	document.getElementById('all').style.display="none";
+	document.getElementById('debutTour').style.display="block";
+	var copieScore=scores;
+	for(var classement in copieScore){
+		if(classement==undefined){
+			delete copieScore[classement];
+		}
+	}
+	var compteur=1;
+	for(var classement in copieScore){
+		var max=0;
+		var userMax;
+		for(var user in copieScore){
+			if(copieScore[user]>=max){
+				max=copieScore[user];
+				userMax=user;
+			}
+		}
+		document.getElementById('classement').innerHTML+=compteur+") "+userMax+"<br>";
+		delete copieScore[userMax];
+		compteur++;
+	}
 });
 socket.on("listegagnant",function(l){
 	gagnantTour=l;
