@@ -13,17 +13,57 @@ body > div {
 #gagnant{
     background-color: green;
 }
+#start{
+    position: absolute;
+    bottom: -100px;
+    right: 10px;
+}
+#syllabe{
+    border: solid;
+    position: absolute;
+    bottom: 0px;
+    right: 340px;
+    font-size: 18px;
+    color: green;
+}
+#timer{
+    border: solid;
+    position: absolute;
+    bottom: -0px;
+    right: 30px;
+    color:red;
+}
+#essai{  
+    position: absolute;
+    bottom: -0px;
+    right: 60px;
+}
+#Manche{
+    position: absolute;
+    bottom: 0px;
+    right: 160px;
+}
 #debutTour {
     left: 0%;
     top: 0%;
     position: absolute;
     height: 100%;
     width: 100%;
-    background-color: blue;
+    color: black;
+    font-size: 30px;
+    background-image: url(../images/background2.jpg);
+    background-attachment: fixed;
+    background-size: cover;
+    background-position: center;
 }
 #classement{
-    color: white;
+    color: black;
     font-size: 30px;
+    background-image: url(../images/background2.jpg);
+    text-align: center;
+    background-attachment: fixed;
+    background-size: cover;
+    background-position: center;
 }
 #content {
     position: absolute;
@@ -431,7 +471,7 @@ main {
     position: absolute;
     top:50%;
     text-align: center;
-    color: white;
+    color:black;
     font-size: 30px;
 }
 #choix > * {

@@ -81,6 +81,12 @@ document.addEventListener("DOMContentLoaded",function(e){
     	});
 
 /*Fonction TP3*/
+function connexion(){
+	NomUtilisateur=document.getElementById('pseudo').value;
+	socket.emit("login",NomUtilisateur);
+	document.getElementById('all').style.display="block";
+	document.getElementById('logScreen').style.display="none";
+}
 function gif(){
 	var image=document.getElementById('bcImage');
 	image.style="display:block";
@@ -123,12 +129,7 @@ function ecouteur(){
 	}
 	//document.getElementById('id0').addEventListener('click',envoyerImage(result.data[0].images.downsized.url));
 }
-function connexion(){
-	NomUtilisateur=document.getElementById('pseudo').value;
-	socket.emit("login",NomUtilisateur);
-	document.getElementById('all').style.display="block";
-	document.getElementById('logScreen').style.display="none";
-}
+
 function estDessinateur(){
 	var toolbox=document.getElementById('toolbox');
 	toolbox.style="	";
@@ -424,33 +425,6 @@ function sortieCanvas(){
 	instanceCommande.buttonLeftPressed = false;
 }
 
-function sauvegarderImage(){
-	var destination = document.getElementById('dessin');
-	var nomSauvegarde=prompt('Nom de la sauvegarde','');
-	localStorage.setItem(nomSauvegarde,destination.toDataURL());
-	var id=document.getElementById("test");
-	id.innerHTML="Les modeles sauvegardés:";
-	for(var i=0;i<localStorage.length;i++){
-		id.innerHTML+=localStorage.key(i)+" | ";
-	}
-}
-function loadImage(){
-	var dessin = document.getElementById('dessin');
-	var canvasDessin = dessin.getContext('2d');
-	canvasDessin.clearRect(0,0,500,500);
-	var nomSauvegarde=prompt('Nom du modele','');
-	var dataURL = localStorage.getItem(nomSauvegarde);
-	if(dataURL==null){
-		alert('Modele Non Existant');
-	}
-	else{
-		var img = new Image();
-		img.src = dataURL;
-		img.onload = function () {
-			canvasDessin.drawImage(img, 0, 0);
-		};
-	}
-}
 socket.on("dessinCanvas",function(image){
 	if(!isDessinateur){
 		var dessin = document.getElementById('dessin');
@@ -463,15 +437,17 @@ socket.on("dessinCanvas",function(image){
 		};
 	}
 });
-socket.on("setTimer",function(time){
-	document.getElementById('timer').innerHTML=time;
-	if(time==25&&document.getElementById('logScreen').style.display=="none"){
+socket.on("finChoix",function() {
+	if(document.getElementById('logScreen').style.display=="none"){
 		if(numeroMot==null){
 			numeroMot=0;
 		}
 		document.getElementById('all').style.display="block";
 		document.getElementById('debutTour').style.display="none";
 	}
+});
+socket.on("setTimer",function(time){
+	document.getElementById('timer').innerHTML=time;
 });
 socket.on("designeDessinateur",function(i,data){
 	essai=3;
@@ -486,6 +462,7 @@ socket.on("designeDessinateur",function(i,data){
 		if(i==NomUtilisateur){
 			numeroMot=null;
 			dataUser=data;
+			console.log(data);
 			document.getElementById('finManche').innerHTML="<p>Vous êtes le dessinateur!<button type='button' onclick=onclick=envoiMot(0)>"+data[0]+"</button>,<button type='button' onclick=envoiMot(1)>"+data[1]+"</button>,<button type='button' onclick=envoiMot(2)>"+data[2]+"</button></p>";
 			
 			etat="pinceau";
@@ -532,6 +509,7 @@ socket.on("finPartie",function(scores){
 		copieScore[userMax]=-1;
 		compteur++;
 	}
+	document.getElementById('classement').innerHTML+="<button type=button id=quitter onclick=quitter()>Quitter</button>";
 });
 socket.on("listegagnant",function(l){
 	gagnantTour=l;
@@ -557,4 +535,23 @@ function help(){
 function envoiMot(num){
 	document.getElementById('syllabe').innerHTML=dataUser[num]+"<button onclick=help()>Help</button>";
 	socket.emit("choixMot",num);
+}
+function quitter() {
+	document.getElementById('all').style.display="block";
+	document.getElementById('debutTour').style.display="none";
+	document.getElementById('syllabe').innerHTML="";
+}
+function sauvegarderNom() {
+	localStorage.setItem('Nom',document.getElementById('pseudo').value);
+}
+function chargerNom() {
+	var pseudo=localStorage.getItem('Nom');
+	if(pseudo!=null && pseudo!=undefined){
+		connexionAncienProfil(pseudo);
+	}
+}
+function connexionAncienProfil(NomUtilisateur){
+	socket.emit("login",NomUtilisateur);
+	document.getElementById('all').style.display="block";
+	document.getElementById('logScreen').style.display="none";
 }

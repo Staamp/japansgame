@@ -1,4 +1,4 @@
-var secondes= 30;
+var secondes= 0;
 var mots;
 var motaDeviner;
 var nbreGagant=0;
@@ -7,6 +7,7 @@ var dessinateurManche=[];
 var manche=0;
 var nbEssaiParManche=0;
 var PartieEnCours=false;
+
 function getRandomInt(max) {
   return Math.floor(Math.random() * Math.floor(max));
 }
@@ -178,17 +179,17 @@ io.on('connection', function (socket) {
         // si client était identifié
 	io.sockets.emit("dessinCanvas", img);
     });
-     socket.on("choixMot", function(num) { 
-        // si client était identifié
+     socket.on("choixMot", function(num) {
        motaDeviner=mots[num];
+       io.sockets.emit("finChoix");
     });
-    socket.on("go", function(num) {
+    socket.on("go", function() {
+        console.log(PartieEnCours);
         if(!PartieEnCours){
             PartieEnCours=true;
             var i =getRandomInt(Object.keys(clients).length);
             console.log(i);
             console.log(Object.keys(clients)[i]);
-            io.sockets.emit("designeDessinateur",Object.keys(clients)[i]);
             decrementerChrono();
         }
     });
@@ -229,7 +230,7 @@ io.on('connection', function (socket) {
                         scores[i]=0;
                     }
                     PartieEnCours=false;
-                    return;
+                    return 0;
                 }
                            
             }
@@ -237,7 +238,6 @@ io.on('connection', function (socket) {
             do{
                 var i =getRandomInt(Object.keys(clients).length);
                 mots=send3data(alphabet.hiragana);
-                //console.log(mots);
                 dessinateur=Object.keys(clients)[i];
             }
             while(dessinateurManche.includes(dessinateur));
