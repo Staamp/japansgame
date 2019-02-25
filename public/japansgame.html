@@ -13,9 +13,12 @@
     <div id="logScreen">
         <div id="connexion">
             <p>Choisissez votre pseudo : <br>
-            <input type="text" id="pseudo" placeholder="Tapez ici votre pseudo" size="30">
-            <input type="button" value="Se connecter" id="btnConnecter" onclick="sauvegarderNom()">
-            <input type="button" value="DernierProfil" id="DernierProfil" onclick="chargerNom()">
+            <input type="text" id="pseudo" placeholder="Tapez ici votre pseudo" size="20">
+            <input type="text" id="nomPartie" placeholder="Nom de la partie" size="10">
+            <input type="button" value="Rejoindre" id="Rejoindre" onclick="Rejoindre()">
+            <input type="button" value="Créer Partie" id="btnConnecter" onclick="sauvegarderNom()">
+            <input type="button" value="Créer Partie habituelle" id="DernierProfil" onclick="chargerNom()">
+            <div id="error"></div>
             </p>
         </div>
     </div>
@@ -60,6 +63,7 @@
     <span id="syllabe"></span>
     <span id="essai">Essai=3</span>
     <span id="Manche">Manche=0</span>
+     <span id="AffichageNomPartie"></span>
     </div>
     <div id="debutTour" display="none">
         <div id="finManche"></div> 

@@ -10,6 +10,9 @@ body > div {
     box-shadow: -10px 10px 20px #A0A0A0;
     border: solid 1px #A0A0A0;
 }
+#error{
+    color: red;
+}
 #gagnant{
     background-color: green;
 }
@@ -18,12 +21,17 @@ body > div {
     bottom: -100px;
     right: 10px;
 }
+#NomPartie{
+    position: absolute; 
+    bottom: 0px;
+    right: 540px;
+}
 #syllabe{
     border: solid;
     position: absolute;
     bottom: 0px;
-    right: 340px;
-    font-size: 18px;
+    right: 440px;
+    font-size: 30px;
     color: green;
 }
 #timer{

@@ -31,10 +31,11 @@ var essai=3;
 var elimine=false;
 var gagne=false;
 var dataUser;
+var nomPartieUser;
+var NomUtilisateur;
 var socket=io.connect("http://localhost:8080");
 
 document.addEventListener("DOMContentLoaded",function(e){
-		var NomUtilisateur;
 		var listeUser;
 		document.getElementById('btnConnecter').addEventListener('click',connexion);
 		document.getElementById('btnEnvoyer').addEventListener('click',envoyer);
@@ -53,7 +54,7 @@ document.addEventListener("DOMContentLoaded",function(e){
 		document.getElementById('ligne').addEventListener('click',function(){etat="ligne"});
 		document.getElementById('rectangle').addEventListener('click',function(){etat="rectangle"});
 		document.getElementById('new').addEventListener('click',clearCanvas);
-		document.getElementById('start').addEventListener('click',function(){socket.emit("go");});
+		document.getElementById('start').addEventListener('click',function(){socket.emit("go",nomPartieUser);});
 		var res=document.getElementById('bcResults');
 		for(var i =0;i<5;i++){
 			res.innerHTML+="<div  id=id"+i+"></div>";
@@ -205,7 +206,7 @@ function envoyer(){
 				txt=detecteEmoji(txt);
 			}
 			txt=detecteImage(txt);
-			socket.emit("message",{from:NomUtilisateur, to:to, text:txt, date:Date.now()});
+			socket.emit("message",{from:NomUtilisateur, to:to, text:txt, date:Date.now()},nomPartieUser);
 		}
 		else{
 			main.innerHTML+="Message non envoyé<br>";
@@ -216,13 +217,13 @@ function envoyer(){
 			txt=detecteEmoji(txt);
 		}
 		txt=detecteImage(txt);
-		socket.emit("message",{from:NomUtilisateur, to:null, text:txt, date:Date.now()});
+		socket.emit("message",{from:NomUtilisateur, to:null, text:txt, date:Date.now()},nomPartieUser);
 	
 	}
 }
 function envoyerImage(src){
 	var main=document.getElementsByTagName('main')[0];
-	socket.emit("message",{from:NomUtilisateur, to:null, text:"<img src="+src+">", date:Date.now()});
+	socket.emit("message",{from:NomUtilisateur, to:null, text:"<img src="+src+">", date:Date.now()},nomPartieUser);
 
 }
 
@@ -303,7 +304,7 @@ function clicSouris(){
 }
 
 function appelleSocketCanvas(img){
-	socket.emit("dessinCanvas",document.getElementById('dessin').toDataURL(),);
+	socket.emit("dessinCanvas",document.getElementById('dessin').toDataURL(),nomPartieUser);
 }
 
 function Deplacement(e){
@@ -447,7 +448,15 @@ socket.on("finChoix",function() {
 	}
 });
 socket.on("setTimer",function(time){
+	console.log(time);
 	document.getElementById('timer').innerHTML=time;
+});
+socket.on("EntreePartie",function(nomPartie){
+	document.getElementById('logScreen').style.display="none";
+	document.getElementById('all').style.display="block";
+	document.getElementById('AffichageNomPartie').innerHTML=nomPartie;
+	nomPartieUser=nomPartie;
+
 });
 socket.on("designeDessinateur",function(i,data){
 	essai=3;
@@ -459,6 +468,7 @@ socket.on("designeDessinateur",function(i,data){
 		canvasDessin.clearRect(0,0,500,500);
 		document.getElementById('all').style.display="none";
 		document.getElementById('debutTour').style.display="block";
+		console.log("Nom"+NomUtilisateur);
 		if(i==NomUtilisateur){
 			numeroMot=null;
 			dataUser=data;
@@ -524,17 +534,21 @@ socket.on("listegagnant",function(l){
 		}
 	}
 });
+socket.on("error",function(){
+	console.log("Message d'erreur - client")
+	document.getElementById('error').innerHTML="Partie introuvable";
+});
 });
 socket.on("help",function(lettre){
 	document.getElementById('syllabe').innerHTML+="-&#"+lettre+";";
 });
 
 function help(){
-	socket.emit("help");
+	socket.emit("help",nomPartieUser);
 }
 function envoiMot(num){
 	document.getElementById('syllabe').innerHTML=dataUser[num]+"<button onclick=help()>Help</button>";
-	socket.emit("choixMot",num);
+	socket.emit("choixMot",num,nomPartieUser);
 }
 function quitter() {
 	document.getElementById('all').style.display="block";
@@ -554,4 +568,9 @@ function connexionAncienProfil(NomUtilisateur){
 	socket.emit("login",NomUtilisateur);
 	document.getElementById('all').style.display="block";
 	document.getElementById('logScreen').style.display="none";
+}
+function Rejoindre() {
+	NomUtilisateur=document.getElementById('pseudo').value;
+	nomPartieUser=document.getElementById('nomPartie').value;
+	socket.emit("loginPartie",nomPartieUser,NomUtilisateur);
 }

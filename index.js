@@ -7,6 +7,96 @@ var dessinateurManche=[];
 var manche=0;
 var nbEssaiParManche=0;
 var PartieEnCours=false;
+var clients = {};       // id -> socket
+var scores={};
+var NbEssai={};
+var gagnant=[];
+var AideDonnee=false;
+var NombreManche=3;
+class Partie{
+    constructor(NombreManche){
+        this.NombreManche=NombreManche;
+        this.secondes= 0;
+        this.mots;
+        this.motaDeviner;
+        this.nbreGagant=0;
+        this.dessinateur;
+        this.dessinateurManche=[];
+        this.manche=0;
+        this.nbEssaiParManche=0;
+        this.PartieEnCours=false;
+        this.clients ={};       // id -> socket
+        this.scores={};
+        this.NbEssai={};
+        this.gagnant=[];
+        this.AideDonnee=false;
+        this.NombreManche=3;
+    }
+    decrementerChrono(){
+        console.log(EnsembleParties["partie1"].secondes);
+        if(EnsembleParties["partie1"].secondes>0){
+            EnsembleParties["partie1"].secondes--;
+            for(var client in  EnsembleParties["partie1"].clients){
+               EnsembleParties["partie1"].clients[client].emit("setTimer",EnsembleParties["partie1"].secondes);
+            }
+            setTimeout(EnsembleParties["partie1"].decrementerChrono,1000);
+        }
+        else{
+            if(EnsembleParties["partie1"].dessinateur!=undefined){
+               EnsembleParties["partie1"].scores[dessinateur]=Math.round((EnsembleParties["partie1"].gagnant.length)*30/(Object.keys(EnsembleParties["partie1"].clients).length-1)-EnsembleParties["partie1"].nbEssaiParManche*5/(Object.keys(EnsembleParties["partie1"].clients).length-1));
+                if(EnsembleParties["partie1"].AideDonnee){
+                    EnsembleParties["partie1"].scores[EnsembleParties["partie1"].dessinateur]/=2;
+                }
+                EnsembleParties["partie1"].dessinateurManche.push(EnsembleParties["partie1"].dessinateur);
+            }
+            //On regarde si la manche est terminée.
+            var finie=true;
+            for(var joueur in EnsembleParties["partie1"].clients){
+                if(!EnsembleParties["partie1"].dessinateurManche.includes(EnsembleParties["partie1"].clients[joueur])){
+                    console.log("Passage if");
+                    finie=false;
+                }
+            }
+            if(finie){
+                EnsembleParties["partie1"].manche++;
+                if(EnsembleParties["partie1"].manche==EnsembleParties["partie1"].NombreManche){
+                    for(var client in  this.clients){
+                        EnsembleParties["partie1"].clients[client].emit("finPartie", EnsembleParties["partie1"].scores);
+                    }
+                     for(var i in EnsembleParties["partie1"].scores){
+                        EnsembleParties["partie1"].scores[i]=0;
+                    }
+                    EnsembleParties["partie1"].PartieEnCours=false;
+                    
+                }
+                           
+            }
+            else{
+                console.log("lancement!!!\n");
+                do{
+                    var i =getRandomInt(Object.keys(EnsembleParties["partie1"].clients).length);
+                    EnsembleParties["partie1"].mots=send3data(alphabet.hiragana);
+                    EnsembleParties["partie1"].dessinateur=Object.keys(EnsembleParties["partie1"].clients)[i];
+                }
+                while(EnsembleParties["partie1"].dessinateurManche.includes(EnsembleParties["partie1"].dessinateur));
+                for(var client in  EnsembleParties["partie1"].clients){
+                    EnsembleParties["partie1"].clients[client].emit("liste", Object.keys(EnsembleParties["partie1"].clients),EnsembleParties["partie1"].scores);
+                    EnsembleParties["partie1"].clients[client].emit("designeDessinateur",Object.keys(EnsembleParties["partie1"].clients)[i],EnsembleParties["partie1"].mots);
+                }
+                EnsembleParties["partie1"].secondes=30;
+                EnsembleParties["partie1"].gagnant=[];
+                EnsembleParties["partie1"].nbEssaiParManche=0;
+                EnsembleParties["partie1"].nbreGagant=0;
+                EnsembleParties["partie1"].AideDonnee=false;
+                for(var user in EnsembleParties["partie1"].NbEssai){
+                   EnsembleParties["partie1"].NbEssai[user]=3;
+                }
+                EnsembleParties["partie1"].decrementerChrono();
+            }
+        }
+    }
+}
+var EnsembleParties={partie1:new Partie(),partie2:new Partie()};
 
 function getRandomInt(max) {
   return Math.floor(Math.random() * Math.floor(max));
@@ -46,7 +136,6 @@ app.use(express.static('public'));
 app.get('/', function(req, res) {  
     res.sendFile(__dirname + '/public/japansgame.html');
 });
-var alphabet = null; 
 
 
 
@@ -69,6 +158,8 @@ io.on('connection', function (socket) {
      *  Doit être la première action après la connexion.
      *  @param  id  string  l'identifiant saisi par le client
      */
+
+     
     socket.on("login", function(id) {
         while (clients[id]) {
             id = id + "(1)";   
@@ -89,38 +180,68 @@ io.on('connection', function (socket) {
         NbEssai[currentID]=3;
     });
     
+    socket.on("loginPartie", function(NomPartie,pseudo) {
+        console.log("Server-loginPartie");
+        if(EnsembleParties[NomPartie]!=null&&EnsembleParties[NomPartie]!=undefined){
+            while (EnsembleParties[NomPartie].clients[pseudo]) {
+                pseudo = pseudo + "(1)";   
+            }
+            currentID = pseudo;
+            EnsembleParties[NomPartie].clients[currentID] = socket;
+            if(currentID!=undefined){
+                 EnsembleParties[NomPartie].scores[currentID]=0;
+            }
+            console.log("Nouvel utilisateur : " + currentID);
+            socket.emit("EntreePartie",NomPartie);
+            // envoi d'un message de bienvenue à ce client
+            socket.emit("bienvenue", currentID);
+            socket.emit("essai",  EnsembleParties[NomPartie].manche);
+            // envoi aux autres clients
+            for(var client in  EnsembleParties[NomPartie].clients){
+                 EnsembleParties[NomPartie].clients[client].emit("message", { from: null, to: null, text: currentID + " a rejoint la discussion", date: Date.now() } );
+
+              // envoi de la nouvelle liste à tous les clients connectés 
+              EnsembleParties[NomPartie].clients[client].emit("liste", Object.keys( EnsembleParties[NomPartie].clients), EnsembleParties[NomPartie].scores);
+            }
+             EnsembleParties[NomPartie].NbEssai[currentID]=3;
+             console.log("---------------------------------------\n");
+             console.log(EnsembleParties);
+
+        }
+    });
+    
     
     /**
      *  Réception d'un message et transmission à tous.
      *  @param  msg     Object  le message à transférer à tous  
      */
-    socket.on("message", function(msg) {
-        console.log("Reçu message");
-        console.log(scores);
-        if(msg.from!=dessinateur){
-            if(motaDeviner==msg.text){
-                nbreGagant++;
-                scores[msg.from]+=secondes;
+    socket.on("message", function(msg,NomPartie) {
+        if(msg.from!=EnsembleParties[NomPartie].dessinateur){
+            if(EnsembleParties[NomPartie].motaDeviner==msg.text){
+                EnsembleParties[NomPartie].nbreGagant++;
+                EnsembleParties[NomPartie].scores[msg.from]+=EnsembleParties[NomPartie].secondes;
                 //socket.emit("gagnant",msg.from);
-                if(nbreGagant==Object.keys(clients).length-1 && Object.keys(clients).length!=1){
-                   secondes=1;
+                if(EnsembleParties[NomPartie].nbreGagant==Object.keys(EnsembleParties[NomPartie].clients).length-1 && Object.keys(EnsembleParties[NomPartie].clients).length!=1){
+                   EnsembleParties[NomPartie].secondes=1;
                 }
                 msg.text="Bonne réponse";
-                io.sockets.emit("message", msg);
-                gagnant.push(msg.from);
-                io.sockets.emit("listegagnant",gagnant);
+                for(var client in  EnsembleParties[NomPartie].clients){
+                 EnsembleParties[NomPartie].clients[client].emit("message", msg);
+                 EnsembleParties[NomPartie].clients[client].emit("listegagnant",EnsembleParties[NomPartie].gagnant);
+                }
+                EnsembleParties[NomPartie].gagnant.push(msg.from);
             }
             else{
-                if(!gagnant.includes(msg.from)&&NbEssai[msg.from]>0){
-                    NbEssai[msg.from]--;
-                    nbEssaiParManche++;
-                    clients[msg.from].emit("essai", NbEssai[msg.from]);
+                if(!EnsembleParties[NomPartie].gagnant.includes(msg.from)&&EnsembleParties[NomPartie].NbEssai[msg.from]>0){
+                    EnsembleParties[NomPartie].NbEssai[msg.from]--;
+                    EnsembleParties[NomPartie].nbEssaiParManche++;
+                    EnsembleParties[NomPartie].clients[msg.from].emit("essai", NbEssai[msg.from]);
                     // si jamais la date n'existe pas, on la rajoute
                     msg.date = Date.now();
                     // si message privé, envoi seulement au destinataire
-                    if (msg.to != null && clients[msg.to] !== undefined) {
+                    if (msg.to != null && EnsembleParties[NomPartie].clients[msg.to] !== undefined) {
                         console.log(" --> message privé");
-                        clients[msg.to].emit("message", msg);
+                        EnsembleParties[NomPartie].clients[msg.to].emit("message", msg);
                         if (msg.from != msg.to) {
                             socket.emit("message", msg);
                         }
@@ -169,28 +290,32 @@ io.on('connection', function (socket) {
         }
         console.log("Client déconnecté");
     });
-     socket.on("help", function() {
-        AideDonnee=true;
+     socket.on("help", function(NomPartie) {
+         EnsembleParties[NomPartie].AideDonnee=true;
         //clients[dessinateur].emit("help", alphabet.hiragana[motaDeviner]);
-        socket.emit("help", alphabet.hiragana[motaDeviner]);
+        socket.emit("help", alphabet.hiragana[ EnsembleParties[NomPartie].motaDeviner]);
     });
 
-     socket.on("dessinCanvas", function(img) { 
+     socket.on("dessinCanvas", function(img,NomPartie) { 
         // si client était identifié
-	io.sockets.emit("dessinCanvas", img);
+        if(NomPartie!=undefined){
+            for(var client in  EnsembleParties[NomPartie].clients){
+                 EnsembleParties[NomPartie].clients[client].emit("dessinCanvas", img);
+            }
+        }
+
     });
-     socket.on("choixMot", function(num) {
-       motaDeviner=mots[num];
-       io.sockets.emit("finChoix");
+    socket.on("choixMot", function(num,NomPartie) {
+       EnsembleParties[NomPartie].motaDeviner=EnsembleParties[NomPartie].mots[num];
+        for(var client in  EnsembleParties[NomPartie].clients){
+         EnsembleParties[NomPartie].clients[client].emit("finChoix");
+        }
     });
-    socket.on("go", function() {
-        console.log(PartieEnCours);
-        if(!PartieEnCours){
-            PartieEnCours=true;
-            var i =getRandomInt(Object.keys(clients).length);
-            console.log(i);
-            console.log(Object.keys(clients)[i]);
-            decrementerChrono();
+    socket.on("go", function(NomPartie) {
+        if(EnsembleParties[NomPartie]!=undefined && !EnsembleParties[NomPartie].PartieEnCours){
+            EnsembleParties[NomPartie].PartieEnCours=true;
+           // var i =getRandomInt(Object.keys(EnsembleParties[NomPartie].clients).length);
+            EnsembleParties[NomPartie].decrementerChrono();
         }
     });
 
@@ -207,63 +332,4 @@ io.on('connection', function (socket) {
             NbEssai[user]=3;
         }
     });
-    function decrementerChrono(){
-        console.log(secondes); 
-        if(secondes>0){
-            secondes--;
-            io.sockets.emit("setTimer",secondes);
-            setTimeout(decrementerChrono,1000);
-        }
-        else{
-            if(dessinateur!=undefined){
-                scores[dessinateur]=Math.round((gagnant.length)*30/(Object.keys(clients).length-1)-nbEssaiParManche*5/(Object.keys(clients).length-1));
-                if(AideDonnee){
-                    scores[dessinateur]/=2;
-                }
-                dessinateurManche.push(dessinateur);
-            }
-            if(isMancheFinie()){
-                manche++;
-                if(manche==1){
-                     io.sockets.emit("finPartie", scores);
-                     for(var i in scores){
-                        scores[i]=0;
-                    }
-                    PartieEnCours=false;
-                    return 0;
-                }
-                           
-            }
-            
-            do{
-                var i =getRandomInt(Object.keys(clients).length);
-                mots=send3data(alphabet.hiragana);
-                dessinateur=Object.keys(clients)[i];
-            }
-            while(dessinateurManche.includes(dessinateur));
-            io.sockets.emit("liste", Object.keys(clients),scores);
-            io.sockets.emit("designeDessinateur",Object.keys(clients)[i],mots);
-            secondes=30;
-            gagnant=[];
-            nbEssaiParManche=0;
-            nbreGagant=0;
-            AideDonnee=false;
-            for(var user in NbEssai){
-                NbEssai[user]=3;
-            }
-            decrementerChrono();
-        }
-    }
-    function isMancheFinie(){
-        var finie=true;
-        for(var joueur in Object.keys(clients)){
-            console.log(Object.keys(clients)[joueur]);
-            console.log(dessinateurManche);
-            if(!dessinateurManche.includes(Object.keys(clients)[joueur])){
-                console.log("Passage if");
-                finie=false;
-            }
-        }
-        return finie;
-    }
 });
