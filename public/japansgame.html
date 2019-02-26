@@ -12,13 +12,34 @@
 <body>
     <div id="logScreen">
         <div id="connexion">
-            <p>Choisissez votre pseudo : <br>
-            <input type="text" id="pseudo" placeholder="Tapez ici votre pseudo" size="20">
+            <span id="error"></span>
+            <p>Pseudo: <br>
+                <input type="text" id="pseudo" placeholder="Tapez ici votre pseudo" size="20">
+            </p>
+            <p>Rejoindre : <br>
             <input type="text" id="nomPartie" placeholder="Nom de la partie" size="10">
             <input type="button" value="Rejoindre" id="Rejoindre" onclick="Rejoindre()">
-            <input type="button" value="Créer Partie" id="btnConnecter" onclick="sauvegarderNom()">
-            <input type="button" value="Créer Partie habituelle" id="DernierProfil" onclick="chargerNom()">
-            <div id="error"></div>
+            </p>
+            <p>Créer : <br>
+                Nombre de manches:
+                <select id="NombreManche">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                </select>
+                <br>
+                Alphabet:
+                <select id="alphabet">
+                    <option value="hiragana">hiragana</option>
+                    <option value="katakana">katakana</option>
+                    <option value="les2">Les 2</option>
+                </select>
+                <input type="text" id="nomPartieCreation" placeholder="Nom de la partie" size="10">
+                <input type="button" value="Créer Partie" id="btnConnecter" onclick="sauvegarderNom()">
+                <input type="button" value="Créer Partie habituelle" id="DernierProfil" onclick="chargerNom()">
             </p>
         </div>
     </div>

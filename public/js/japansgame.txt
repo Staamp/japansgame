@@ -37,7 +37,7 @@ var socket=io.connect("http://localhost:8080");
 
 document.addEventListener("DOMContentLoaded",function(e){
 		var listeUser;
-		document.getElementById('btnConnecter').addEventListener('click',creerPartie);
+		document.getElementById('btnConnecter').addEventListener('click',connexion);
 		document.getElementById('btnEnvoyer').addEventListener('click',envoyer);
 		document.getElementById('btnImage').addEventListener('click',gif);
 		document.getElementById('btnRechercher').addEventListener('click',rechercheGif);
@@ -82,14 +82,11 @@ document.addEventListener("DOMContentLoaded",function(e){
     	});
 
 /*Fonction TP3*/
-function creerPartie(){
+function connexion(){
 	NomUtilisateur=document.getElementById('pseudo').value;
-	var NomPartieTemp=document.getElementById('nomPartieCreation').value;
-	var AlphabetTemp=document.getElementById('alphabet').value;
-	var NombreMancheTemp=document.getElementById('NombreManche').value;
-	socket.emit("creerPartie",NomUtilisateur,NomPartieTemp,NombreMancheTemp,AlphabetTemp);
-	//document.getElementById('all').style.display="block";
-	//document.getElementById('logScreen').style.display="none";
+	socket.emit("login",NomUtilisateur);
+	document.getElementById('all').style.display="block";
+	document.getElementById('logScreen').style.display="none";
 }
 function gif(){
 	var image=document.getElementById('bcImage');
@@ -455,8 +452,6 @@ socket.on("setTimer",function(time){
 	document.getElementById('timer').innerHTML=time;
 });
 socket.on("EntreePartie",function(nomPartie){
-	
-	document.getElementsByTagName('main')[0].innerHTML="";
 	document.getElementById('logScreen').style.display="none";
 	document.getElementById('all').style.display="block";
 	document.getElementById('AffichageNomPartie').innerHTML=nomPartie;
@@ -477,6 +472,7 @@ socket.on("designeDessinateur",function(i,data){
 		if(i==NomUtilisateur){
 			numeroMot=null;
 			dataUser=data;
+			console.log(data);
 			document.getElementById('finManche').innerHTML="<p>Vous êtes le dessinateur!<button type='button' onclick=onclick=envoiMot(0)>"+data[0]+"</button>,<button type='button' onclick=envoiMot(1)>"+data[1]+"</button>,<button type='button' onclick=envoiMot(2)>"+data[2]+"</button></p>";
 			
 			etat="pinceau";
@@ -526,8 +522,6 @@ socket.on("finPartie",function(scores){
 	document.getElementById('classement').innerHTML+="<button type=button id=quitter onclick=quitter()>Quitter</button>";
 });
 socket.on("listegagnant",function(l){
-	console.log("listegagnant");
-	console.log(l);
 	gagnantTour=l;
 	var aside=document.getElementsByTagName('aside')[0];
 	aside.innerHTML="";
@@ -540,14 +534,8 @@ socket.on("listegagnant",function(l){
 		}
 	}
 });
-socket.on("creationOK",function(pseudo,nomPartie){
-	console.log("CreationOK = "+pseudo);
-	socket.emit("loginPartie",nomPartie,pseudo);
-});
-socket.on("creationFAIL",function(){
-	document.getElementById('error').innerHTML="Nom de partie déjà utilisé";
-});
-socket.on("loginFAIL",function(){
+socket.on("error",function(){
+	console.log("Message d'erreur - client")
 	document.getElementById('error').innerHTML="Partie introuvable";
 });
 });
@@ -563,9 +551,7 @@ function envoiMot(num){
 	socket.emit("choixMot",num,nomPartieUser);
 }
 function quitter() {
-	document.getElementById('logScreen').style.display="block";
-	document.getElementById('error').innerHTML="";
-	document.getElementById('all').style.display="none";
+	document.getElementById('all').style.display="block";
 	document.getElementById('debutTour').style.display="none";
 	document.getElementById('syllabe').innerHTML="";
 }
