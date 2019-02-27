@@ -520,6 +520,8 @@ main {
  **              Menu des options                  **
  ****************************************************/
 
+ 
+
 /* bouton pour afficher/cacher */
 #btnOptions {
     position: absolute; 
@@ -586,6 +588,8 @@ main {
     color: var(--bg-color);
     background-color: var(--fg-color);
 }
+
+
 
 
 /**********************************************************
