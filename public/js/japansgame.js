@@ -170,6 +170,7 @@ function detecteImage(text){
 	return "<img src="+text.substring(indiceDepart, indiceFin)+">";
 }
 function lancementPartie(){
+	document.getElementById('start').style.display='none';
 	socket.emit("lancementPartie");
 }
 function timeConverter(UNIX_timestamp){
@@ -503,6 +504,7 @@ socket.on("manche",function(nombre){
 	document.getElementById('manche').innerHTML="manche="+nombre;
 });
 socket.on("finPartie",function(scores){
+	document.getElementById('start').style.display='none';
 	console.log("FIN PARTIE");
 	document.getElementById('all').style.display="none";
 	document.getElementById('finManche').innerHTML="";
@@ -575,13 +577,14 @@ socket.on("loginFAIL",function(){
 });
 socket.on("help",function(lettre){
 	document.getElementById('syllabe').innerHTML+="-&#"+lettre+";";
+	document.getElementById('help').style.display="none";
 });
 
 function help(){
 	socket.emit("help",nomPartieUser);
 }
 function envoiMot(num){
-	document.getElementById('syllabe').innerHTML=dataUser[num]+"<button onclick=help()>Help</button>";
+	document.getElementById('syllabe').innerHTML=dataUser[num]+"<button id='help' onclick=help()>Help</button>";
 	socket.emit("choixMot",num,nomPartieUser);
 }
 function quitter() {
