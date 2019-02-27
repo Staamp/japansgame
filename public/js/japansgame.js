@@ -436,6 +436,8 @@ function sortieCanvas(){
 	instanceCommande.buttonLeftPressed = false;
 }
 
+
+
 socket.on("dessinCanvas",function(image){
 	if(!isDessinateur){
 		var dessin = document.getElementById('dessin');
@@ -601,6 +603,7 @@ function sauvegarderNom() {
 	localStorage.setItem('nomPartieCreation',document.getElementById('nomPartieCreation').value);
 }
 function chargerNom() {
+	console.log("test");
 	var pseudo=localStorage.getItem('Nom');
 	var NombreMancheTemp=localStorage.getItem('NombreManche');
 	var alphabetTemp=localStorage.getItem('alphabet');
@@ -612,6 +615,12 @@ function chargerNom() {
 		document.getElementById("error").innerHTML="Aucune information n'est enregistrée";
 	}
 }
+
+function optionAvance() {
+	var oa = document.getElementById("options").style.display = "inline";
+	console.log(oa);
+}
+
 
 function Rejoindre() {
 	if(document.getElementById("homme").checked){
