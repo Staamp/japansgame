@@ -530,7 +530,7 @@ socket.on("finPartie",function(scores){
 	}
 	document.getElementById('classement').innerHTML+="<button type=button id=quitter onclick=quitter()>Quitter</button>";
 });
-socket.on("listegagnant",function(l){
+socket.on("listegagnant",function(l,avatar){
 	console.log("listegagnant");
 	console.log(l);
 	gagnantTour=l;
@@ -538,10 +538,20 @@ socket.on("listegagnant",function(l){
 	aside.innerHTML="";
 	for(var user in listeUser){
 		if(gagnantTour.includes(listeUser[user])){
-			aside.innerHTML+="<span id=gagnant>"+listeUser[user]+"-"+scoreUser[listeUser[user]]+"</span><br>";
+			if(avatar[listeUser[user]]==1){
+				aside.innerHTML+="<span id=gagnant>"+listeUser[user]+"-"+scoreUser[listeUser[user]]+"<img src='../images/femme.jpeg' width='30px' height='30px'></span><br>";
+			}
+			else{
+				aside.innerHTML+="<span id=gagnant>"+listeUser[user]+"-"+scoreUser[listeUser[user]]+"<img src='../images/homme.jpeg' width='30px' height='30px'></span><br>";
+			}
 		}
 		else{
-			aside.innerHTML+=listeUser[user]+"-"+scoreUser[listeUser[user]]+"<br>";
+			if(avatar[listeUser[user]]==1){
+				aside.innerHTML+=listeUser[user]+"-"+scoreUser[listeUser[user]]+"<img src='../images/femme.jpeg' width='30px' height='30px'><br>";
+			}
+			else{
+				aside.innerHTML+=listeUser[user]+"-"+scoreUser[listeUser[user]]+"<img src='../images/homme.jpeg' width='30px' height='30px'><br>";
+			}
 		}
 	}
 });
