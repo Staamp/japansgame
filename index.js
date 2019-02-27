@@ -332,12 +332,14 @@ io.on('connection', function (socket) {
                     EnsembleParties[NomPartie].nbEssaiParManche++;
                     //plus d'essais
                     var NbrUserSansEssai=0;
-                    for(var user in EnsembleParties.NbEssai){
-                        if(NbEssai[user]==0){
+                    for(var user in EnsembleParties[NomPartie].NbEssai){
+                        if(EnsembleParties[NomPartie].NbEssai[user]==0){
                             NbrUserSansEssai++;
                         }
                     }
-                    if(NbrUserSansEssai+EnsembleParties.nbreGagant.length==(Object.keys(EnsembleParties[NomPartie].clients).length-1)){
+					console.log("G"+NbrUserSansEssai+EnsembleParties[NomPartie].nbreGagant);
+					console.log("D"+(Object.keys(EnsembleParties[NomPartie].clients).length-1));
+                    if(NbrUserSansEssai+EnsembleParties[NomPartie].nbreGagant==(Object.keys(EnsembleParties[NomPartie].clients).length-1)){
                         EnsembleParties[NomPartie].secondes=1;
                     }
                     EnsembleParties[NomPartie].clients[msg.from].emit("essai", EnsembleParties[NomPartie].NbEssai[msg.from]);
