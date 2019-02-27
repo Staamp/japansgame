@@ -111,7 +111,7 @@ function Partie(){
                 }
                 while(this.dessinateurManche.includes(this.dessinateur));
                 for(var client in  EnsembleParties[this.NomPartie].clients){
-                   this.clients[client].emit("liste", Object.keys(EnsembleParties[this.NomPartie].clients),this.scores);
+                   this.clients[client].emit("liste", Object.keys(EnsembleParties[this.NomPartie].clients),this.scores,this.avatar);
                    this.clients[client].emit("designeDessinateur",Object.keys(EnsembleParties[this.NomPartie].clients)[i],this.mots);
                 }
                 this.secondes=30;
