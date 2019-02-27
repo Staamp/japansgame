@@ -89,7 +89,8 @@ function creerPartie(){
 	var NomPartieTemp=document.getElementById('nomPartieCreation').value;
 	var AlphabetTemp=document.getElementById('alphabet').value;
 	var NombreMancheTemp=document.getElementById('NombreManche').value;
-	socket.emit("creerPartie",NomUtilisateur,NomPartieTemp,NombreMancheTemp,AlphabetTemp);
+	var suffpre=recupSuffixePrefixe();
+	socket.emit("creerPartie",NomUtilisateur,NomPartieTemp,NombreMancheTemp,AlphabetTemp,suffpre);
 	//document.getElementById('all').style.display="block";
 	//document.getElementById('logScreen').style.display="none";
 }
@@ -629,15 +630,25 @@ function chargerNom() {
 	var NombreMancheTemp=localStorage.getItem('NombreManche');
 	var alphabetTemp=localStorage.getItem('alphabet');
 	var nomPartieTemp=localStorage.getItem('nomPartieCreation');
+	var suffpre=recupSuffixePrefixe();
 
 	if(pseudo!=undefined&&NombreMancheTemp!=undefined&&alphabetTemp!=undefined&&nomPartieTemp!=undefined){
-		socket.emit("creerPartie",pseudo,nomPartieTemp,NombreMancheTemp,alphabetTemp);
+		socket.emit("creerPartie",pseudo,nomPartieTemp,NombreMancheTemp,alphabetTemp,suffpre);
 	}
 	else{
 		document.getElementById("error").innerHTML="Aucune information n'est enregistrée";
 	}
 }
-
+function recupSuffixePrefixe(){
+	var bouton=document.getElementsByTagName("input");
+	var res= [];
+	for (var i=0; i<bouton.length;i++){
+		if(bouton[i].type=="checkbox" && bouton[i].checked && !bouton[i].disabled){
+			res.push(bouton[i].value);
+		}
+	}
+	return res;
+}
 function optionAvance() {
 	document.getElementById("options").style.display = "inline";
 }
