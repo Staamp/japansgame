@@ -16,6 +16,7 @@ class command{
 	}
 
 }
+var avatarUser=1;
 var gagnantTour=[];
 var numeroMot;
 var mot;
@@ -256,14 +257,19 @@ socket.on("message",function(msg) {
 	}
 });
 
-socket.on("liste",function(liste,score) {
+socket.on("liste",function(liste,score,avatar) {
 	console.log("recu"+score);
 	listeUser=liste;
 	scoreUser=score;
 	var aside=document.getElementsByTagName('aside')[0];
 	aside.innerHTML="";
 	for(var user in liste){
-		aside.innerHTML+=liste[user]+"-"+score[liste[user]]+"<br>";
+		if(avatar[liste[user]]=='1'){
+			aside.innerHTML+=liste[user]+"-"+score[liste[user]]+"<img src='../images/femme.jpeg' width='30px' height='30px'><br>";
+		}
+		else{
+			aside.innerHTML+=liste[user]+"-"+score[liste[user]]+"<img src='../images/homme.jpeg' width='30px' height='30px'><br>";
+		}
 	}
 	console.log(liste);
 });
@@ -455,7 +461,6 @@ socket.on("setTimer",function(time){
 	document.getElementById('timer').innerHTML=time;
 });
 socket.on("EntreePartie",function(nomPartie){
-	
 	document.getElementsByTagName('main')[0].innerHTML="";
 	document.getElementById('logScreen').style.display="none";
 	document.getElementById('all').style.display="block";
@@ -541,8 +546,14 @@ socket.on("listegagnant",function(l){
 	}
 });
 socket.on("creationOK",function(pseudo,nomPartie){
-	console.log("CreationOK = "+pseudo);
-	socket.emit("loginPartie",nomPartie,pseudo);
+	if(document.getElementById("homme").checked){
+		avatarUser=2;
+	}
+	else{
+		avatarUser=1;
+	}
+	console.log("CreationOK = "+avatarUser);
+	socket.emit("loginPartie",nomPartie,pseudo,avatarUser);
 });
 socket.on("creationFAIL",function(){
 	document.getElementById('error').innerHTML="Nom de partie déjà utilisé";
@@ -571,20 +582,32 @@ function quitter() {
 }
 function sauvegarderNom() {
 	localStorage.setItem('Nom',document.getElementById('pseudo').value);
+	localStorage.setItem('NombreManche',document.getElementById('NombreManche').value);
+	localStorage.setItem('alphabet',document.getElementById('alphabet').value);
+	localStorage.setItem('nomPartieCreation',document.getElementById('nomPartieCreation').value);
 }
 function chargerNom() {
 	var pseudo=localStorage.getItem('Nom');
-	if(pseudo!=null && pseudo!=undefined){
-		connexionAncienProfil(pseudo);
+	var NombreMancheTemp=localStorage.getItem('NombreManche');
+	var alphabetTemp=localStorage.getItem('alphabet');
+	var nomPartieTemp=localStorage.getItem('nomPartieCreation');
+	if(pseudo!=undefined&&NombreMancheTemp!=undefined&&alphabetTemp!=undefined&&nomPartieTemp!=undefined){
+		socket.emit("creerPartie",pseudo,nomPartieTemp,NombreMancheTemp,alphabetTemp);
+	}
+	else{
+		document.getElementById("error").innerHTML="Aucune information n'est enregistrée";
 	}
 }
-function connexionAncienProfil(NomUtilisateur){
-	socket.emit("login",NomUtilisateur);
-	document.getElementById('all').style.display="block";
-	document.getElementById('logScreen').style.display="none";
-}
+
 function Rejoindre() {
+	if(document.getElementById("homme").checked){
+		avatarUser=2;
+	}
+	else{
+		avatarUser=1;
+	}
+	console.log(avatarUser);
 	NomUtilisateur=document.getElementById('pseudo').value;
 	nomPartieUser=document.getElementById('nomPartie').value;
-	socket.emit("loginPartie",nomPartieUser,NomUtilisateur);
+	socket.emit("loginPartie",nomPartieUser,NomUtilisateur,avatarUser);
 }

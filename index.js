@@ -19,6 +19,7 @@ function Partie(){
         var gagnant=[];
         var AideDonnee=false;
         var alphabet;
+        var avatar={};
     var __construct=function(that){
         that.NomPartie="partie1";
         that.NombreManche=3;
@@ -37,12 +38,23 @@ function Partie(){
         that.gagnant=[];
         that.AideDonnee=false;
         that.alphabet=alphabetALL["hiragana"];
+        that.avatar={};
     }(this)
 
     this.initialise=function(NomPartie,NombreManche,alphabet){
         this.NomPartie=NomPartie;
         this.NombreManche=+NombreManche;
-        this.alphabet=alphabetALL[alphabet];
+        if(alphabet!="les2"){
+            this.alphabet=alphabetALL[alphabet];
+        }
+        else{
+            for(var syllabe1 in alphabetALL.hiragana){
+               this.alphabet[syllabe1]=alphabetALL.hiragana[syllabe1];
+            }
+            for(var syllabe2 in alphabetALL.katakana){
+                this.alphabet[syllabe2+" "]=alphabetALL.katakana[syllabe2];
+            }
+        }
     }
 
     this.decrementerChrono=function(){
@@ -196,8 +208,8 @@ io.on('connection', function (socket) {
         NbEssai[currentID]=3;
     });
     
-    socket.on("loginPartie", function(NomPartie,pseudo) {
-        console.log("Server-loginPartie");
+    socket.on("loginPartie", function(NomPartie,pseudo,avatar) {
+        console.log("Server-loginPartie"+avatar);
         if(EnsembleParties[NomPartie]!=null&&EnsembleParties[NomPartie]!=undefined){
             while (EnsembleParties[NomPartie].clients[pseudo]) {
                 pseudo = pseudo + "(1)";   
@@ -206,6 +218,7 @@ io.on('connection', function (socket) {
             EnsembleParties[NomPartie].clients[currentID] = socket;
             if(currentID!=undefined){
                  EnsembleParties[NomPartie].scores[currentID]=0;
+                 EnsembleParties[NomPartie].avatar[currentID]=avatar;
             }
             console.log("Nouvel utilisateur : " + currentID);
             socket.emit("EntreePartie",NomPartie);
@@ -217,9 +230,10 @@ io.on('connection', function (socket) {
                  EnsembleParties[NomPartie].clients[client].emit("message", { from: null, to: null, text: currentID + " a rejoint la discussion", date: Date.now() } );
 
               // envoi de la nouvelle liste à tous les clients connectés 
-              EnsembleParties[NomPartie].clients[client].emit("liste", Object.keys( EnsembleParties[NomPartie].clients), EnsembleParties[NomPartie].scores);
+              EnsembleParties[NomPartie].clients[client].emit("liste", Object.keys( EnsembleParties[NomPartie].clients), EnsembleParties[NomPartie].scores,EnsembleParties[NomPartie].avatar);
             }
              EnsembleParties[NomPartie].NbEssai[currentID]=3;
+             console.log(EnsembleParties);
 
         }
         else{
@@ -231,7 +245,6 @@ io.on('connection', function (socket) {
         if(EnsembleParties[NomPartie]==undefined&& NomPartie!=""){
             EnsembleParties[NomPartie]=new Partie();
             EnsembleParties[NomPartie].initialise(NomPartie,NombreManche,alphabet);
-            console.log(EnsembleParties);
             socket.emit("creationOK",pseudo,NomPartie);
         }
         socket.emit("creationFAIL");
@@ -262,6 +275,10 @@ io.on('connection', function (socket) {
                 if(!EnsembleParties[NomPartie].gagnant.includes(msg.from)&&EnsembleParties[NomPartie].NbEssai[msg.from]>0){
                     EnsembleParties[NomPartie].NbEssai[msg.from]--;
                     EnsembleParties[NomPartie].nbEssaiParManche++;
+                    //plus d'essais
+                    if(EnsembleParties[NomPartie].nbEssaiParManche==(Object.keys(EnsembleParties[NomPartie].clients).length-1)*3){
+                        EnsembleParties[NomPartie].secondes=1;
+                    }
                     EnsembleParties[NomPartie].clients[msg.from].emit("essai", EnsembleParties[NomPartie].NbEssai[msg.from]);
                     // si jamais la date n'existe pas, on la rajoute
                     msg.date = Date.now();
@@ -309,7 +326,7 @@ io.on('connection', function (socket) {
                     EnsembleParties[game].clients[client].emit("message", 
                         { from: null, to: null, text: currentID + " a quitté la discussion", date: Date.now() } );
                     // envoi de la nouvelle liste pour mise à jour
-                    EnsembleParties[game].clients[client].emit("liste", Object.keys(EnsembleParties[game].clients),EnsembleParties[game].scores);
+                    EnsembleParties[game].clients[client].emit("liste", Object.keys(EnsembleParties[game].clients),EnsembleParties[game].scores,EnsembleParties[NomPartie].avatar);
                 }
                 }
             }
@@ -330,7 +347,7 @@ io.on('connection', function (socket) {
                     EnsembleParties[game].clients[client].emit("message", 
                 { from: null, to: null, text: currentID + " vient de se déconnecter de l'application", date: Date.now() } );
                     // envoi de la nouvelle liste pour mise à jour
-                    EnsembleParties[game].clients[client].emit("liste", Object.keys(EnsembleParties[game].clients),EnsembleParties[game].scores);
+                    EnsembleParties[game].clients[client].emit("liste", Object.keys(EnsembleParties[game].clients),EnsembleParties[game].scores,EnsembleParties[NomPartie].avatar);
                 }
                 }
             }
@@ -370,7 +387,7 @@ io.on('connection', function (socket) {
         var i =getRandomInt(Object.keys(clients).length);
         console.log("lancementPartie");
         console.log(Object.keys(clients)[i]);
-        io.sockets.emit("liste", Object.keys(clients),scores);
+        io.sockets.emit("liste", Object.keys(clients),scores,EnsembleParties[NomPartie].avatar);
         io.sockets.emit("designeDessinateur",Object.keys(clients)[i]);
         decrementerChrono();
         gagnant=[];
