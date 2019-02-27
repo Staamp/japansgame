@@ -69,7 +69,10 @@ function Partie(){
         }
         else{
             if(this.dessinateur!=undefined){
-               var gainTour=Math.round((this.gagnant.length)*30/(Object.keys(EnsembleParties["partie1"].clients).length-1)-EnsembleParties["partie1"].nbEssaiParManche*5/(Object.keys(EnsembleParties["partie1"].clients).length-1));
+               var gainTour=Math.round(((this.gagnant.length)*30-EnsembleParties["partie1"].nbEssaiParManche*2)/(Object.keys(EnsembleParties["partie1"].clients).length-1));
+               if(gainTour<0){
+                    gainTour=0;
+               }
                 if(EnsembleParties[this.NomPartie].AideDonnee){
                     gainTour/=2;
                 }

@@ -170,7 +170,6 @@ function detecteImage(text){
 	return "<img src="+text.substring(indiceDepart, indiceFin)+">";
 }
 function lancementPartie(){
-	document.getElementById('start').style.display='none';
 	socket.emit("lancementPartie");
 }
 function timeConverter(UNIX_timestamp){
@@ -470,6 +469,7 @@ socket.on("EntreePartie",function(nomPartie){
 
 });
 socket.on("designeDessinateur",function(i,data){
+	document.getElementById('start').style.display='none';
 	essai=3;
 	if(document.getElementById('all').style.display!="none"&&document.getElementById('logScreen').style.display=="none"){
 		document.getElementById('classement').innerHTML="";
@@ -504,7 +504,7 @@ socket.on("manche",function(nombre){
 	document.getElementById('manche').innerHTML="manche="+nombre;
 });
 socket.on("finPartie",function(scores){
-	document.getElementById('start').style.display='none';
+	document.getElementById('start').style.display='block';
 	console.log("FIN PARTIE");
 	document.getElementById('all').style.display="none";
 	document.getElementById('finManche').innerHTML="";
