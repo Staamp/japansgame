@@ -320,17 +320,21 @@ io.on('connection', function (socket) {
                 console.log(game);
                 console.log(EnsembleParties[game].clients[currentID]);
                 if(EnsembleParties[game].clients[currentID]!=undefined){
-                    console.log("Sortie de l'utilisateur " + currentID);
-                
-                    // suppression de l'entrée
-                delete EnsembleParties[game].clients[currentID];
-                 for(var client in  EnsembleParties[game].clients){
-                    
-                    EnsembleParties[game].clients[client].emit("message", 
-                        { from: null, to: null, text: currentID + " a quitté la discussion", date: Date.now() } );
-                    // envoi de la nouvelle liste pour mise à jour
-                    EnsembleParties[game].clients[client].emit("liste", Object.keys(EnsembleParties[game].clients),EnsembleParties[game].scores,EnsembleParties[NomPartie].avatar);
-                }
+                    if(Object.keys(EnsembleParties[game].clients).length<=1){
+                        EnsembleParties[game].PartieEnCours=false;
+                    }
+                    else{
+                        console.log("Sortie de l'utilisateur " + currentID);
+                            // suppression de l'entrée
+                        delete EnsembleParties[game].clients[currentID];
+                         for(var client in  EnsembleParties[game].clients){
+                            
+                            EnsembleParties[game].clients[client].emit("message", 
+                                { from: null, to: null, text: currentID + " a quitté la discussion", date: Date.now() } );
+                            // envoi de la nouvelle liste pour mise à jour
+                            EnsembleParties[game].clients[client].emit("liste", Object.keys(EnsembleParties[game].clients),EnsembleParties[game].scores,EnsembleParties[NomPartie].avatar);
+                        }
+                    }
                 }
             }
         }
@@ -340,18 +344,23 @@ io.on('connection', function (socket) {
     socket.on("disconnect", function(reason) { 
         // si client était identifié
         if (currentID) {
-            console.log("Client auth2");
+
             for(var game in EnsembleParties){
                 if(EnsembleParties[game].clients[currentID]!=undefined){
-                delete EnsembleParties[game].scores[currentID];
-                delete EnsembleParties[game].clients[currentID];  
-                 for(var client in  EnsembleParties[game].clients){
-                    
-                    EnsembleParties[game].clients[client].emit("message", 
-                { from: null, to: null, text: currentID + " vient de se déconnecter de l'application", date: Date.now() } );
-                    // envoi de la nouvelle liste pour mise à jour
-                    EnsembleParties[game].clients[client].emit("liste", Object.keys(EnsembleParties[game].clients),EnsembleParties[game].scores,EnsembleParties[NomPartie].avatar);
-                }
+                    if(Object.keys(EnsembleParties[game].clients).length<=1){
+                        EnsembleParties[game].PartieEnCours=false;
+                    }
+                    else{
+                        delete EnsembleParties[game].scores[currentID];
+                        delete EnsembleParties[game].clients[currentID];  
+                         for(var client in  EnsembleParties[game].clients){
+                            
+                            EnsembleParties[game].clients[client].emit("message", 
+                        { from: null, to: null, text: currentID + " vient de se déconnecter de l'application", date: Date.now() } );
+                            // envoi de la nouvelle liste pour mise à jour
+                            EnsembleParties[game].clients[client].emit("liste", Object.keys(EnsembleParties[game].clients),EnsembleParties[game].scores,EnsembleParties[game].avatar);
+                        }
+                    }
                 }
             }
         }
