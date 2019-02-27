@@ -39,6 +39,7 @@ var socket=io.connect("http://localhost:8080");
 document.addEventListener("DOMContentLoaded",function(e){
 		var listeUser;
 		document.getElementById('btnConnecter').addEventListener('click',creerPartie);
+		document.getElementById('btnQuitter').addEventListener('click',deconnecte);
 		document.getElementById('btnEnvoyer').addEventListener('click',envoyer);
 		document.getElementById('btnImage').addEventListener('click',gif);
 		document.getElementById('btnRechercher').addEventListener('click',rechercheGif);
@@ -91,6 +92,15 @@ function creerPartie(){
 	socket.emit("creerPartie",NomUtilisateur,NomPartieTemp,NombreMancheTemp,AlphabetTemp);
 	//document.getElementById('all').style.display="block";
 	//document.getElementById('logScreen').style.display="none";
+}
+function deconnecte(){
+	socket.emit("disconnect",1);
+	socket.emit("logout");
+	document.getElementById('logScreen').style.display="block";
+	document.getElementById('error').innerHTML="";
+	document.getElementById('all').style.display="none";
+	document.getElementById('debutTour').style.display="none";
+	document.getElementById('syllabe').innerHTML="";
 }
 function gif(){
 	var image=document.getElementById('bcImage');
@@ -170,7 +180,6 @@ function detecteImage(text){
 	return "<img src="+text.substring(indiceDepart, indiceFin)+">";
 }
 function lancementPartie(){
-	document.getElementById('start').style.display='none';
 	socket.emit("lancementPartie");
 }
 function timeConverter(UNIX_timestamp){
@@ -468,10 +477,13 @@ socket.on("EntreePartie",function(nomPartie){
 	document.getElementById('logScreen').style.display="none";
 	document.getElementById('all').style.display="block";
 	document.getElementById('AffichageNomPartie').innerHTML=nomPartie;
+	etat="";
+	document.getElementById('toolbox').style.display="none";
 	nomPartieUser=nomPartie;
 
 });
 socket.on("designeDessinateur",function(i,data){
+	document.getElementById('start').style.display='none';
 	essai=3;
 	if(document.getElementById('all').style.display!="none"&&document.getElementById('logScreen').style.display=="none"){
 		document.getElementById('classement').innerHTML="";
@@ -506,7 +518,7 @@ socket.on("manche",function(nombre){
 	document.getElementById('manche').innerHTML="manche="+nombre;
 });
 socket.on("finPartie",function(scores){
-	document.getElementById('start').style.display='none';
+	document.getElementById('start').style.display='block';
 	console.log("FIN PARTIE");
 	document.getElementById('all').style.display="none";
 	document.getElementById('finManche').innerHTML="";
@@ -608,6 +620,7 @@ function chargerNom() {
 	var NombreMancheTemp=localStorage.getItem('NombreManche');
 	var alphabetTemp=localStorage.getItem('alphabet');
 	var nomPartieTemp=localStorage.getItem('nomPartieCreation');
+
 	if(pseudo!=undefined&&NombreMancheTemp!=undefined&&alphabetTemp!=undefined&&nomPartieTemp!=undefined){
 		socket.emit("creerPartie",pseudo,nomPartieTemp,NombreMancheTemp,alphabetTemp);
 	}
