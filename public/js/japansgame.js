@@ -631,6 +631,7 @@ function chargerNom() {
 	var alphabetTemp=localStorage.getItem('alphabet');
 	var nomPartieTemp=localStorage.getItem('nomPartieCreation');
 	var suffpre=recupSuffixePrefixe();
+	console.log(suffpre);
 
 	if(pseudo!=undefined&&NombreMancheTemp!=undefined&&alphabetTemp!=undefined&&nomPartieTemp!=undefined){
 		socket.emit("creerPartie",pseudo,nomPartieTemp,NombreMancheTemp,alphabetTemp,suffpre);
@@ -647,6 +648,7 @@ function recupSuffixePrefixe(){
 			res.push(bouton[i].value);
 		}
 	}
+	console.log(res);
 	return res;
 }
 function optionAvance() {

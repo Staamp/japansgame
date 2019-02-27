@@ -57,6 +57,7 @@ function Partie(){
                 this.alphabet[syllabe2+" "]=alphabetALL.katakana[syllabe2];
             }
         }
+        this.suffpre=suffpre;
     }
 
     this.decrementerChrono=function(){
