@@ -94,6 +94,9 @@ function Partie(){
             }
             if(finie){
                 this.manche++;
+                for(var client in  this.clients){
+                    this.clients[client].emit("manche", this.manche);
+                }
                 if(this.manche==this.NombreManche){
                     for(var client in  this.clients){
                        this.clients[client].emit("finPartie", this.scores);
@@ -213,34 +216,43 @@ io.on('connection', function (socket) {
     
     socket.on("loginPartie", function(NomPartie,pseudo,avatar) {
         console.log("Server-loginPartie"+avatar);
-        if(EnsembleParties[NomPartie]!=null&&EnsembleParties[NomPartie]!=undefined){
-            while (EnsembleParties[NomPartie].clients[pseudo]) {
-                pseudo = pseudo + "(1)";   
+        var erreurPseudo=false;
+        for(var game in EnsembleParties){
+            if(EnsembleParties[game].clients[pseudo]!=undefined){
+                socket.emit("pseudoFAIL");
+                erreurPseudo=true;
             }
-            currentID = pseudo;
-            EnsembleParties[NomPartie].clients[currentID] = socket;
-            if(currentID!=undefined){
-                 EnsembleParties[NomPartie].scores[currentID]=0;
-                 EnsembleParties[NomPartie].avatar[currentID]=avatar;
-            }
-            console.log("Nouvel utilisateur : " + currentID);
-            socket.emit("EntreePartie",NomPartie);
-            // envoi d'un message de bienvenue à ce client
-            socket.emit("bienvenue", currentID);
-            socket.emit("essai",  EnsembleParties[NomPartie].manche);
-            // envoi aux autres clients
-            for(var client in  EnsembleParties[NomPartie].clients){
-                 EnsembleParties[NomPartie].clients[client].emit("message", { from: null, to: null, text: currentID + " a rejoint la discussion", date: Date.now() } );
-
-              // envoi de la nouvelle liste à tous les clients connectés 
-              EnsembleParties[NomPartie].clients[client].emit("liste", Object.keys( EnsembleParties[NomPartie].clients), EnsembleParties[NomPartie].scores,EnsembleParties[NomPartie].avatar);
-            }
-             EnsembleParties[NomPartie].NbEssai[currentID]=3;
-             console.log(EnsembleParties);
-
         }
-        else{
-            socket.emit("loginFAIL");
+        if(!erreurPseudo){
+            if(EnsembleParties[NomPartie]!=null&&EnsembleParties[NomPartie]!=undefined){
+                while (EnsembleParties[NomPartie].clients[pseudo]) {
+                    pseudo = pseudo + "(1)";   
+                }
+                currentID = pseudo;
+                EnsembleParties[NomPartie].clients[currentID] = socket;
+                if(currentID!=undefined){
+                     EnsembleParties[NomPartie].scores[currentID]=0;
+                     EnsembleParties[NomPartie].avatar[currentID]=avatar;
+                }
+                console.log("Nouvel utilisateur : " + currentID);
+                socket.emit("EntreePartie",NomPartie);
+                // envoi d'un message de bienvenue à ce client
+                socket.emit("bienvenue", currentID);
+                socket.emit("essai",  EnsembleParties[NomPartie].manche);
+                // envoi aux autres clients
+                for(var client in  EnsembleParties[NomPartie].clients){
+                     EnsembleParties[NomPartie].clients[client].emit("message", { from: null, to: null, text: currentID + " a rejoint la discussion", date: Date.now() } );
+
+                  // envoi de la nouvelle liste à tous les clients connectés 
+                  EnsembleParties[NomPartie].clients[client].emit("liste", Object.keys( EnsembleParties[NomPartie].clients), EnsembleParties[NomPartie].scores,EnsembleParties[NomPartie].avatar);
+                }
+                 EnsembleParties[NomPartie].NbEssai[currentID]=3;
+                 console.log(EnsembleParties);
+
+            }
+            else{
+                socket.emit("loginFAIL");
+            }
         }
     });
     

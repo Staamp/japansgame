@@ -585,6 +585,9 @@ socket.on("creationFAIL",function(){
 socket.on("loginFAIL",function(){
 	document.getElementById('error').innerHTML="Partie introuvable";
 });
+socket.on("pseudoFAIL",function(){
+	document.getElementById('error').innerHTML="Pseudo déjà pris";
+});
 });
 socket.on("help",function(lettre){
 	document.getElementById('syllabe').innerHTML+="-&#"+lettre+";";
@@ -610,6 +613,12 @@ function sauvegarderNom() {
 	localStorage.setItem('NombreManche',document.getElementById('NombreManche').value);
 	localStorage.setItem('alphabet',document.getElementById('alphabet').value);
 	localStorage.setItem('nomPartieCreation',document.getElementById('nomPartieCreation').value);
+	if(document.getElementById("homme").checked){
+		localStorage.setItem('avatar',2);
+	}
+	else{
+		localStorage.setItem('avatar',1);
+	}
 }
 function chargerNom() {
 	var pseudo=localStorage.getItem('Nom');
