@@ -515,6 +515,7 @@ socket.on("finPartie",function(scores){
 	}
 	var compteur=1;
 	document.getElementById('classement').innerHTML="Classement de la partie<br>";
+	console.log(copieScore);
 	for(var classement in copieScore){
 		var max=0;
 		var userMax;
