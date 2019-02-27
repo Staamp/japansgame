@@ -288,12 +288,21 @@ io.on('connection', function (socket) {
     });
     
     socket.on("creerPartie",function(pseudo,NomPartie,NombreManche,alphabet,suffpre){
-        if(EnsembleParties[NomPartie]==undefined&& NomPartie!=""){
-            EnsembleParties[NomPartie]=new Partie();
-            EnsembleParties[NomPartie].initialise(NomPartie,NombreManche,alphabet,suffpre);
-            socket.emit("creationOK",pseudo,NomPartie);
+        var erreurPseudo=false;
+        for(var game in EnsembleParties){
+            if(EnsembleParties[game].clients[pseudo]!=undefined){
+                socket.emit("pseudoFAIL");
+                erreurPseudo=true;
+            }
         }
-        socket.emit("creationFAIL");
+        if(!erreurPseudo){
+            if(EnsembleParties[NomPartie]==undefined&& NomPartie!=""){
+                EnsembleParties[NomPartie]=new Partie();
+                EnsembleParties[NomPartie].initialise(NomPartie,NombreManche,alphabet,suffpre);
+                socket.emit("creationOK",pseudo,NomPartie);
+            }
+            socket.emit("creationFAIL");
+        }
     });
     /**
      *  Réception d'un message et transmission à tous.
