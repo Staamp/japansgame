@@ -301,7 +301,7 @@ io.on('connection', function (socket) {
      */
     socket.on("message", function(msg,NomPartie) {
         if(msg.from!=EnsembleParties[NomPartie].dessinateur){
-            if(EnsembleParties[NomPartie].motaDeviner==msg.text || (EnsembleParties[NomPartie].motaDeviner==msg.text+" "){
+            if(EnsembleParties[NomPartie].motaDeviner==msg.text || EnsembleParties[NomPartie].motaDeviner==msg.text+" "){
                 EnsembleParties[NomPartie].nbreGagant++;
                 if(msg.from!=undefined){
                     EnsembleParties[NomPartie].scores[msg.from]+=EnsembleParties[NomPartie].secondes;
