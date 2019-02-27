@@ -288,12 +288,21 @@ io.on('connection', function (socket) {
     });
     
     socket.on("creerPartie",function(pseudo,NomPartie,NombreManche,alphabet,suffpre){
-        if(EnsembleParties[NomPartie]==undefined&& NomPartie!=""){
-            EnsembleParties[NomPartie]=new Partie();
-            EnsembleParties[NomPartie].initialise(NomPartie,NombreManche,alphabet,suffpre);
-            socket.emit("creationOK",pseudo,NomPartie);
+        var erreurPseudo=false;
+        for(var game in EnsembleParties){
+            if(EnsembleParties[game].clients[pseudo]!=undefined){
+                socket.emit("pseudoFAIL");
+                erreurPseudo=true;
+            }
         }
-        socket.emit("creationFAIL");
+        if(!erreurPseudo){
+            if(EnsembleParties[NomPartie]==undefined&& NomPartie!=""){
+                EnsembleParties[NomPartie]=new Partie();
+                EnsembleParties[NomPartie].initialise(NomPartie,NombreManche,alphabet,suffpre);
+                socket.emit("creationOK",pseudo,NomPartie);
+            }
+            socket.emit("creationFAIL");
+        }
     });
     /**
      *  Réception d'un message et transmission à tous.
@@ -322,7 +331,13 @@ io.on('connection', function (socket) {
                     EnsembleParties[NomPartie].NbEssai[msg.from]--;
                     EnsembleParties[NomPartie].nbEssaiParManche++;
                     //plus d'essais
-                    if(EnsembleParties[NomPartie].nbEssaiParManche==(Object.keys(EnsembleParties[NomPartie].clients).length-1)*3){
+                    var NbrUserSansEssai=0;
+                    for(var user in EnsembleParties.NbEssai){
+                        if(NbEssai[user]==0){
+                            NbrUserSansEssai++;
+                        }
+                    }
+                    if(NbrUserSansEssai+EnsembleParties.nbreGagant.length==(Object.keys(EnsembleParties[NomPartie].clients).length-1)){
                         EnsembleParties[NomPartie].secondes=1;
                     }
                     EnsembleParties[NomPartie].clients[msg.from].emit("essai", EnsembleParties[NomPartie].NbEssai[msg.from]);
