@@ -374,7 +374,7 @@ io.on('connection', function (socket) {
                             EnsembleParties[game].clients[client].emit("message", 
                                 { from: null, to: null, text: currentID + " a quitté la discussion", date: Date.now() } );
                             // envoi de la nouvelle liste pour mise à jour
-                            EnsembleParties[game].clients[client].emit("liste", Object.keys(EnsembleParties[game].clients),EnsembleParties[game].scores,EnsembleParties[NomPartie].avatar);
+                            EnsembleParties[game].clients[client].emit("liste", Object.keys(EnsembleParties[game].clients),EnsembleParties[game].scores,EnsembleParties[game].avatar);
                         }
                     }
                 }
