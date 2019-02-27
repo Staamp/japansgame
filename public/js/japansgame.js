@@ -639,9 +639,13 @@ function chargerNom() {
 }
 
 function optionAvance() {
-	var oa = document.getElementById("options").style.display = "inline";
-	console.log(oa);
+	document.getElementById("options").style.display = "inline";
 }
+
+function optionFermer() {
+	document.getElementById("options").style.display = "none";
+}
+
 
 
 function Rejoindre() {
