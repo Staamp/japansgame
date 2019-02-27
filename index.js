@@ -268,7 +268,7 @@ io.on('connection', function (socket) {
                 EnsembleParties[NomPartie].gagnant.push(msg.from);
                 for(var client in  EnsembleParties[NomPartie].clients){
                  EnsembleParties[NomPartie].clients[client].emit("message", msg);
-                 EnsembleParties[NomPartie].clients[client].emit("listegagnant",EnsembleParties[NomPartie].gagnant);
+                 EnsembleParties[NomPartie].clients[client].emit("listegagnant",EnsembleParties[NomPartie].gagnant,EnsembleParties[NomPartie].avatar);
                 }
             }
             else{
