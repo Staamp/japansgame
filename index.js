@@ -301,7 +301,7 @@ io.on('connection', function (socket) {
      */
     socket.on("message", function(msg,NomPartie) {
         if(msg.from!=EnsembleParties[NomPartie].dessinateur){
-            if(EnsembleParties[NomPartie].motaDeviner==msg.text || (EnsembleParties[NomPartie].motaDeviner==msg.text+" "){
+            if(EnsembleParties[NomPartie].motaDeviner==msg.text || EnsembleParties[NomPartie].motaDeviner==msg.text+" "){
                 EnsembleParties[NomPartie].nbreGagant++;
                 if(msg.from!=undefined){
                     EnsembleParties[NomPartie].scores[msg.from]+=EnsembleParties[NomPartie].secondes;
@@ -322,7 +322,13 @@ io.on('connection', function (socket) {
                     EnsembleParties[NomPartie].NbEssai[msg.from]--;
                     EnsembleParties[NomPartie].nbEssaiParManche++;
                     //plus d'essais
-                    if(EnsembleParties[NomPartie].nbEssaiParManche==(Object.keys(EnsembleParties[NomPartie].clients).length-1)*3){
+                    var NbrUserSansEssai=0;
+                    for(var user in EnsembleParties.NbEssai){
+                        if(NbEssai[user]==0){
+                            NbrUserSansEssai++;
+                        }
+                    }
+                    if(NbrUserSansEssai+EnsembleParties.nbreGagant.length==(Object.keys(EnsembleParties[NomPartie].clients).length-1)){
                         EnsembleParties[NomPartie].secondes=1;
                     }
                     EnsembleParties[NomPartie].clients[msg.from].emit("essai", EnsembleParties[NomPartie].NbEssai[msg.from]);
