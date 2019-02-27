@@ -20,6 +20,7 @@ function Partie(){
         var AideDonnee=false;
         var alphabet;
         var avatar={};
+        var suffpre=[];
     var __construct=function(that){
         that.NomPartie="partie1";
         that.NombreManche=3;
@@ -39,9 +40,10 @@ function Partie(){
         that.AideDonnee=false;
         that.alphabet=alphabetALL["hiragana"];
         that.avatar={};
+        that.suffpre=[];
     }(this)
 
-    this.initialise=function(NomPartie,NombreManche,alphabet){
+    this.initialise=function(NomPartie,NombreManche,alphabet,suffpre){
         this.NomPartie=NomPartie;
         this.NombreManche=+NombreManche;
         if(alphabet!="les2"){
@@ -112,7 +114,7 @@ function Partie(){
                 console.log("lancement!!!\n");
                 do{
                     var i =getRandomInt(Object.keys(EnsembleParties[this.NomPartie].clients).length);
-                    this.mots=send3data(this.alphabet);
+                    this.mots=send3data(this.alphabet,this.suffpre);
                     this.dessinateur=Object.keys(EnsembleParties[this.NomPartie].clients)[i];
                 }
                 while(this.dessinateurManche.includes(this.dessinateur));
@@ -142,6 +144,34 @@ console.log(EnsembleParties);
 function getRandomInt(max) {
   return Math.floor(Math.random() * Math.floor(max));
 }
+function send3data(alphabet,suffpre){
+    var taille_alphabet=0;
+    //var suffpre=recupSuffixePrefixe();
+    for(var lettre in alphabet){
+        taille_alphabet++;
+    }
+    var resultat=[];
+    var random=[];
+    for(var j=0;j<3;j++){
+            do{
+                var rand=getRandomInt(taille_alphabet);
+                var correspondant=false;
+                for(var i=0;i<suffpre.length;i++){
+                    var regexp=RegExp(suffpre[i]);
+                    if(regexp.test(Object.keys(alphabet)[rand])){
+                        correspondant=true;
+                    }
+                }
+            }
+            while(random.includes(rand) || (suffpre.length!=0&&!correspondant));
+            random.push(rand);
+            donnee=Object.keys(alphabet)[rand];
+            resultat.push(donnee);
+
+    }
+    return resultat;
+}
+/*
 function send3data(alphabet){
     var taille_alphabet=0;
     for(var lettre in alphabet){
@@ -159,7 +189,7 @@ function send3data(alphabet){
             resultat.push(donnee);
     }
     return resultat;
-}
+}*/
 // Chargement des modules 
 var express = require('express');
 var app = express();
@@ -256,10 +286,10 @@ io.on('connection', function (socket) {
         }
     });
     
-    socket.on("creerPartie",function(pseudo,NomPartie,NombreManche,alphabet){
+    socket.on("creerPartie",function(pseudo,NomPartie,NombreManche,alphabet,suffpre){
         if(EnsembleParties[NomPartie]==undefined&& NomPartie!=""){
             EnsembleParties[NomPartie]=new Partie();
-            EnsembleParties[NomPartie].initialise(NomPartie,NombreManche,alphabet);
+            EnsembleParties[NomPartie].initialise(NomPartie,NombreManche,alphabet,suffpre);
             socket.emit("creationOK",pseudo,NomPartie);
         }
         socket.emit("creationFAIL");
