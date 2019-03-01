@@ -1,4 +1,8 @@
-//Classe command qui sert à dessiner dans le canvas.
+//Coté Client-japan's game-Ponçot Cédric-Courvoisier Nicolas- Web Avancé 2018/2019
+
+
+//Classe 'command' qui sert à dessiner dans le canvas.
+//xDepart,yDepart sont les points "ancrés" de départ dans le dessin d'une ligne ou d'un rectangle.
 class command{
 	constructor(){
 		this.buttonLeftPressed = false;
@@ -84,7 +88,6 @@ function creerPartie(){
 
 //Quitte une partie (non lancée)
 function deconnecte(){
-	//TODO
 	socket.emit("retourEcran");
 	//On repasse sur l'écran de connexion
 	document.getElementById('logScreen').style.display="block";
@@ -94,59 +97,7 @@ function deconnecte(){
 	document.getElementById('syllabe').innerHTML="";
 }
 
-/*
-function gif(){
-	var image=document.getElementById('bcImage');
-	image.style="display:block";
-}
-function Quittegif(){
-	var image=document.getElementById('bcImage');
-	image.style="display:none";
-}
-function rechercheGif(){
-	var r=document.getElementById('recherche');
-	var recherche=r.value;
-	var xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-            result=JSON.parse(this.responseText);
-            console.log(result);
-
-            id=0;
-		    for(var image in result.data){
-		    	document.getElementById("id"+id).innerHTML="";
-		    	document.getElementById("id"+id).innerHTML+="<img src="+result.data[image].images.downsized.url+">";
-		    	id++;
-		    }
-		   // ecouteur();
-        }
-    }
-
-    xhttp.open("GET", 'http://api.giphy.com/v1/gifs/search?q='+recherche+'&api_key=0X5obvHJHTxBVi92jfblPqrFbwtf1xig&limit=5', true);
-    xhttp.send();
-}
-
-function oki(){
-	if(document.getElementById("id").getElementsByTagName('img')!=null){
-		envoyerImage(res.getElementsByTagName('img')[0].src);
-	}
-}
-
-function ecouteur(){
-	
-	 for(var i=0;i<id;i++){		  
-		   document.getElementById('id'+i).addEventListener('click',envoyerImage(result.data[i].images.downsized.url));
-	}
-	//document.getElementById('id0').addEventListener('click',envoyerImage(result.data[0].images.downsized.url));
-}
-
-
-function estDessinateur(){
-	var toolbox=document.getElementById('toolbox');
-	toolbox.style="	";
-}
-*/
-
+//remplace les messages contenant :) :D zzz <3 :( grr :D :/ :0 par des smileys associés
 function detecteEmoji(text){
 	var res=text;
  	var regexRire=new RegExp(':\\\)');
@@ -169,6 +120,8 @@ function detecteEmoji(text){
  	res=res.replace(regexHolala,'<img class ="emoji holala">');
  	return res;
 }
+
+//Permet d'inserer une image dans le chat avec la syntaxe [img:src]
 function detecteImage(text){
 	var indiceDepart=text.indexOf('[img:')+5;
 	var indiceFin=text.indexOf(']')
@@ -177,9 +130,8 @@ function detecteImage(text){
 	}
 	return "<img src="+text.substring(indiceDepart, indiceFin)+">";
 }
-function lancementPartie(){
-	socket.emit("lancementPartie");
-}
+
+//Convertit une Date en une chaine de caractères representant celle-ci
 function timeConverter(UNIX_timestamp){
   var a = new Date(UNIX_timestamp );
   var hour = a.getHours();
@@ -197,6 +149,8 @@ function timeConverter(UNIX_timestamp){
   var time = hour + ':' + min + ':' + sec ;
   return time;
 }
+
+//Fonction permettant d'envoyer un message (public ou privé)
 function envoyer(){
 	essai--;
 	var main=document.getElementsByTagName('main')[0];
@@ -230,76 +184,15 @@ function envoyer(){
 		}
 		txt=detecteImage(txt);
 		socket.emit("message",{from:NomUtilisateur, to:null, text:txt, date:Date.now()},nomPartieUser);
-	
 	}
 }
-function envoyerImage(src){
-	var main=document.getElementsByTagName('main')[0];
-	socket.emit("message",{from:NomUtilisateur, to:null, text:"<img src="+src+">", date:Date.now()},nomPartieUser);
-
-}
-
-socket.on("message",function(msg) {
-	var main=document.getElementsByTagName('main')[0];
-	console.log(msg);
-	if(msg.from!=null){
-		if(msg.to==null){
-			if(msg.from==NomUtilisateur){
-				main.innerHTML+="<span class=moi>"+timeConverter(msg.date)+" - "+msg.from+" : "+msg.text+"<br></span>";
-			}
-			else{
-				main.innerHTML+=timeConverter(msg.date)+" - "+msg.from+" : "+msg.text+"<br>";
-			}
-		}
-		else{
-			if(msg.to==NomUtilisateur){
-				main.innerHTML+="<span class=mp>"+timeConverter(msg.date)+" - "+msg.to+"(à "+msg.from+") : "+msg.text+"<br></span>";
-			}
-			else{
-				main.innerHTML+="<span class=mp>"+timeConverter(msg.date)+" - "+msg.from+"(à "+msg.to+") : "+msg.text+"<br></span>";
-			}
-		}
-	}
-	else{
-		main.innerHTML+="<span class=system>[admin]"+msg.text+"<br></span>";
-	}
-});
-
-socket.on("liste",function(liste,score,avatar) {
-	console.log("recu"+score);
-	listeUser=liste;
-	scoreUser=score;
-	var aside=document.getElementsByTagName('aside')[0];
-	aside.innerHTML="";
-	for(var user in liste){
-		if(avatar[liste[user]]=='1'){
-			aside.innerHTML+=liste[user]+"-"+score[liste[user]]+"<img src='../images/femme.jpeg' width='30px' height='30px'><br>";
-		}
-		else{
-			aside.innerHTML+=liste[user]+"-"+score[liste[user]]+"<img src='../images/homme.jpeg' width='30px' height='30px'><br>";
-		}
-	}
-	console.log(liste);
-});
 
 
-socket.on("bienvenue",function(id) {
-	var login=document.getElementById('login');
-	login.innerHTML=id;
+//=======================================================================================================
+//=======================================FONCTIONS A PROPOS DU DESSIN DANS LE CANVAS=====================
+//=======================================================================================================
 
-});
-
-socket.on("dessinCanvas",function(image){
-	var dessin = document.getElementById('dessin');
-	var canvasDessin = dessin.getContext('2d');
-	var img = new Image();
-	img.src = image;
-	img.onload = function () {
-		canvasDessin.drawImage(img, 0, 0);
-	};
-});
-
-/**Fonctions TP2*/
+//Reinitialise le canvas, puis transmet l'information au serveur
 function clearCanvas(){
 	var dessin = document.getElementById('dessin');
 	var cvsDessin = dessin.getContext('2d');
@@ -307,6 +200,7 @@ function clearCanvas(){
 	appelleSocketCanvas();
 }
 
+//Gère le clic de souris dans le canvas
 function clicSouris(){
 	canvasOverlay.clearRect(0,0,500,500);
 	instanceCommande.buttonLeftPressed = true;
@@ -321,10 +215,12 @@ function clicSouris(){
 	}
 }
 
+//Envoie au serveur le nouveau dessin
 function appelleSocketCanvas(){
 	socket.emit("dessinCanvas",document.getElementById('dessin').toDataURL(),nomPartieUser);
 }
 
+//Gère le déplacement de la souris dans le canvas
 function Deplacement(e){
 	var rect = e.target.getBoundingClientRect();
 	var x = e.clientX - rect.left;
@@ -341,11 +237,13 @@ function Deplacement(e){
 	}
 }
 
+//Gère l'entrée de la souris dans le canvas
 function entreeCanvas(){
 	taille=document.getElementById('size').value;
 	afficheCurseur();
 }
 
+//Gère l'affichage du curseur dans le canvas
 function afficheCurseur(){
 	canvasOverlay.clearRect(0,0,500,500);
 	canvasOverlay.fillStyle = 'RGBa(255,255,255,1)';
@@ -391,6 +289,7 @@ function afficheCercle(){
     canvasDessin.fill(cercle);
 }
 
+//Gère l'affichage de la gomme
 function afficheGomme(){
 	var dessin = document.getElementById('dessin');
 	var canvasDessin = dessin.getContext('2d');
@@ -398,6 +297,7 @@ function afficheGomme(){
 	canvasDessin.clearRect(instanceCommande.x, instanceCommande.y,taille,taille);
 }
 
+//Gère l'affichage du curseur en mode "cercle"
 function afficheCercleCurseur(){
 	var cercle = new Path2D();
    // cercle.moveTo(125, 35);
@@ -405,6 +305,29 @@ function afficheCercleCurseur(){
     canvasOverlay.fill(cercle);
 }
 
+//Affiche le rectangle dans le canvas
+function afficheRectangle(){
+	var dessin = document.getElementById('dessin');
+	var canvasDessin = dessin.getContext('2d');
+	canvasDessin.fillStyle = 'RGBa(255,255,255,1)';
+	var ecartX=instanceCommande.xDepart-instanceCommande.x;
+	var ecartY=instanceCommande.yDepart-instanceCommande.y;
+	canvasDessin.fillRect(instanceCommande.x,instanceCommande.y,ecartX,ecartY);
+}
+
+//Affiche la ligne dans le canvas
+function afficheLigne(){
+	var dessin = document.getElementById('dessin');
+	var canvasDessin = dessin.getContext('2d');
+	canvasDessin.beginPath();
+	canvasDessin.strokeStyle = 'RGBa(255,255,255,1)';
+	canvasDessin.lineWidth = taille;
+	canvasDessin.moveTo(instanceCommande.xDepart,instanceCommande.yDepart);
+	canvasDessin.lineTo(instanceCommande.x,instanceCommande.y);
+	canvasDessin.stroke();
+}
+
+//Gère le relachement de la souris dans le canvas
 function relachementSouris(){
 	instanceCommande.buttonLeftPressed =false;
 	if(etat=="pinceau"){
@@ -422,30 +345,16 @@ function relachementSouris(){
 	appelleSocketCanvas();
 }
 
-function afficheRectangle(){
-	var dessin = document.getElementById('dessin');
-	var canvasDessin = dessin.getContext('2d');
-	canvasDessin.fillStyle = 'RGBa(255,255,255,1)';
-	var ecartX=instanceCommande.xDepart-instanceCommande.x;
-	var ecartY=instanceCommande.yDepart-instanceCommande.y;
-	canvasDessin.fillRect(instanceCommande.x,instanceCommande.y,ecartX,ecartY);
-}
-function afficheLigne(){
-	var dessin = document.getElementById('dessin');
-	var canvasDessin = dessin.getContext('2d');
-	canvasDessin.beginPath();
-	canvasDessin.strokeStyle = 'RGBa(255,255,255,1)';
-	canvasDessin.lineWidth = taille;
-	canvasDessin.moveTo(instanceCommande.xDepart,instanceCommande.yDepart);
-	canvasDessin.lineTo(instanceCommande.x,instanceCommande.y);
-	canvasDessin.stroke();
-}
+//gère la sortie de la souris du canvas
 function sortieCanvas(){
 	instanceCommande.buttonLeftPressed = false;
 }
 
+//=======================================================================================================
+//=======================================ECOUTEURS DE SOCKET=============================================
+//=======================================================================================================
 
-
+//Récupère le nouveau canvas et le place sur la page.
 socket.on("dessinCanvas",function(image){
 	if(!isDessinateur){
 		var dessin = document.getElementById('dessin');
@@ -458,6 +367,8 @@ socket.on("dessinCanvas",function(image){
 		};
 	}
 });
+
+//Indique que le dessinateur a choisi son mot à faire deviner
 socket.on("finChoix",function() {
 	if(document.getElementById('logScreen').style.display=="none"){
 		if(numeroMot==null){
@@ -467,10 +378,13 @@ socket.on("finChoix",function() {
 		document.getElementById('debutTour').style.display="none";
 	}
 });
+
+//Récupère le temps restant dans la manche.
 socket.on("setTimer",function(time){
-	console.log(time);
 	document.getElementById('timer').innerHTML=time;
 });
+
+//Indique que la partie est en cours.
 socket.on("EntreePartie",function(nomPartie){
 	document.getElementsByTagName('main')[0].innerHTML="";
 	document.getElementById('logScreen').style.display="none";
@@ -481,6 +395,8 @@ socket.on("EntreePartie",function(nomPartie){
 	nomPartieUser=nomPartie;
 
 });
+
+//Socket permettant de connaitre le dessinateur.
 socket.on("designeDessinateur",function(i,data){
 	document.getElementById('start').style.display='none';
 	essai=3;
@@ -492,7 +408,6 @@ socket.on("designeDessinateur",function(i,data){
 		canvasDessin.clearRect(0,0,500,500);
 		document.getElementById('all').style.display="none";
 		document.getElementById('debutTour').style.display="block";
-		console.log("Nom"+NomUtilisateur);
 		if(i==NomUtilisateur){
 			numeroMot=null;
 			dataUser=data;
@@ -510,15 +425,20 @@ socket.on("designeDessinateur",function(i,data){
 		}
 	}
 });
+
+//récupère le nombre d'essais restant
 socket.on("essai",function(nombre){
 	document.getElementById('essai').innerHTML="Essai="+nombre;
 });
+
+//récupère le numéro de la manche
 socket.on("manche",function(nombre){
 	document.getElementById('manche').innerHTML="manche="+nombre;
 });
+
+//Indique que la partie est finie
 socket.on("finPartie",function(scores){
 	document.getElementById('start').style.display='block';
-	console.log("FIN PARTIE");
 	document.getElementById('all').style.display="none";
 	document.getElementById('finManche').innerHTML="";
 	document.getElementById('debutTour').style.display="block";
@@ -530,7 +450,6 @@ socket.on("finPartie",function(scores){
 	}
 	var compteur=1;
 	document.getElementById('classement').innerHTML="Classement de la partie<br>";
-	console.log(copieScore);
 	for(var classement in copieScore){
 		var max=0;
 		var userMax;
@@ -546,9 +465,9 @@ socket.on("finPartie",function(scores){
 	}
 	document.getElementById('classement').innerHTML+="<button type=button id=quitter onclick=quitter()>Quitter</button>";
 });
+
+//Indique les joeurs qui sont gagnant cette manche. (Ils sont surlignés en vert dans le chat)
 socket.on("listegagnant",function(l,avatar){
-	console.log("listegagnant");
-	console.log(l);
 	gagnantTour=l;
 	var aside=document.getElementsByTagName('aside')[0];
 	aside.innerHTML="";
@@ -571,6 +490,8 @@ socket.on("listegagnant",function(l,avatar){
 		}
 	}
 });
+
+//Indique que la création de la partie a réussie
 socket.on("creationOK",function(pseudo,nomPartie){
 	if(document.getElementById("homme").checked){
 		avatarUser=2;
@@ -578,40 +499,102 @@ socket.on("creationOK",function(pseudo,nomPartie){
 	else{
 		avatarUser=1;
 	}
-	console.log("CreationOK = "+avatarUser);
 	socket.emit("loginPartie",nomPartie,pseudo,avatarUser);
 });
+
+//Indique que la création de la partie a échoué
 socket.on("creationFAIL",function(){
 	document.getElementById('error').innerHTML="Nom de partie déjà utilisé ou invalide";
 });
+
+//Indique que la partie que l'on veut rejoindre n'existe pas/plus
 socket.on("loginFAIL",function(){
 	document.getElementById('error').innerHTML="Partie introuvable";
 });
+
+//Indique que le pseudo est déjà pris
 socket.on("pseudoFAIL",function(){
 	document.getElementById('error').innerHTML="Pseudo déjà pris";
 });
+
+//Indique son nom
+socket.on("bienvenue",function(id) {
+	var login=document.getElementById('login');
+	login.innerHTML=id;
+
 });
+
+//Récupère la liste des joueurs dans la partie (avatar, nom et score)
+socket.on("liste",function(liste,score,avatar) {
+	listeUser=liste;
+	scoreUser=score;
+	var aside=document.getElementsByTagName('aside')[0];
+	aside.innerHTML="";
+	for(var user in liste){
+		if(avatar[liste[user]]=='1'){
+			aside.innerHTML+=liste[user]+"-"+score[liste[user]]+"<img src='../images/femme.jpeg' width='30px' height='30px'><br>";
+		}
+		else{
+			aside.innerHTML+=liste[user]+"-"+score[liste[user]]+"<img src='../images/homme.jpeg' width='30px' height='30px'><br>";
+		}
+	}
+});
+
+//Affiche les messages du chat
+socket.on("message",function(msg) {
+	var main=document.getElementsByTagName('main')[0];
+	if(msg.from!=null){
+		if(msg.to==null){
+			if(msg.from==NomUtilisateur){
+				main.innerHTML+="<span class=moi>"+timeConverter(msg.date)+" - "+msg.from+" : "+msg.text+"<br></span>";
+			}
+			else{
+				main.innerHTML+=timeConverter(msg.date)+" - "+msg.from+" : "+msg.text+"<br>";
+			}
+		}
+		else{
+			if(msg.to==NomUtilisateur){
+				main.innerHTML+="<span class=mp>"+timeConverter(msg.date)+" - "+msg.to+"(à "+msg.from+") : "+msg.text+"<br></span>";
+			}
+			else{
+				main.innerHTML+="<span class=mp>"+timeConverter(msg.date)+" - "+msg.from+"(à "+msg.to+") : "+msg.text+"<br></span>";
+			}
+		}
+	}
+	else{
+		main.innerHTML+="<span class=system>[admin]"+msg.text+"<br></span>";
+	}
+});
+});
+
+//Renvoie le symbole si l'aide est demandée
 socket.on("help",function(lettre){
 	document.getElementById('syllabe').innerHTML+="-&#"+lettre+";";
 	document.getElementById('help').style.display="none";
 });
 
+//Demande l'aide
 function help(){
 	socket.emit("help",nomPartieUser);
 }
+
+//Envoie au serveur le mot qui a été choisi par le dessinateur
 function envoiMot(num){
 	document.getElementById('syllabe').innerHTML=dataUser[num]+"<button id='help' onclick=help()>Help</button>";
 	socket.emit("choixMot",num,nomPartieUser);
 }
+
+//Sors du classement, et renvoie à l'écran de connexion
 function quitter() {
-	socket.emit("disconnect");
 	document.getElementById('logScreen').style.display="block";
 	document.getElementById('error').innerHTML="";
 	document.getElementById('all').style.display="none";
 	document.getElementById('debutTour').style.display="none";
 	document.getElementById('syllabe').innerHTML="";
 }
-function sauvegarderNom() {
+
+//Lorsque l'on crée une partie, on stocke dans le local Storage les options.
+function sauvegarderOptionPartie() {
 	document.getElementById('start').style.display='block';
 	localStorage.setItem('Nom',document.getElementById('pseudo').value);
 	localStorage.setItem('NombreManche',document.getElementById('NombreManche').value);
@@ -625,8 +608,9 @@ function sauvegarderNom() {
 	}
 	localStorage.setItem('sufpre',recupSuffixePrefixe())
 }
-function chargerNom() {
-	console.log("test");
+
+//Lorsque l'on veut lancer la même partie que précedement, on récupère dans le local Storage les différentes options
+function chargerOptionPartie() {
 	var pseudo=localStorage.getItem('Nom');
 	var NombreMancheTemp=localStorage.getItem('NombreManche');
 	var alphabetTemp=localStorage.getItem('alphabet');
@@ -640,6 +624,8 @@ function chargerNom() {
 		document.getElementById("error").innerHTML="Aucune information n'est enregistrée";
 	}
 }
+
+//Renvoie dans un tableau les différents Regexp des suffixes/préfixes cochés.
 function recupSuffixePrefixe(){
 	var bouton=document.getElementsByTagName("input");
 	var res= [];
@@ -648,19 +634,20 @@ function recupSuffixePrefixe(){
 			res.push(bouton[i].value);
 		}
 	}
-	console.log(res);
 	return res;
 }
+
+//Affiche le menu des options avancées
 function optionAvance() {
 	document.getElementById("options").style.display = "inline";
 }
 
+//Ferme le menu des options avancées
 function optionFermer() {
 	document.getElementById("options").style.display = "none";
 }
 
-
-
+//Permet de rejoindre une partie déjà créée
 function Rejoindre() {
 	if(document.getElementById("homme").checked){
 		avatarUser=2;
@@ -668,7 +655,6 @@ function Rejoindre() {
 	else{
 		avatarUser=1;
 	}
-	console.log(avatarUser);
 	document.getElementById('start').style.display='block';
 	NomUtilisateur=document.getElementById('pseudo').value;
 	nomPartieUser=document.getElementById('nomPartie').value;

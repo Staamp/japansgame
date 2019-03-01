@@ -1,6 +1,10 @@
+//Coté Serveur-japan's game-Ponçot Cédric-Courvoisier Nicolas- Web Avancé 2018/2019
 
+//Alphabet japonais "en dur" dans une variable texte
 var chaineJSON='{"hiragana":{"a":12354,"i":12356,"u":12358,"e":12360, "o" : 12362,"ka": 12363, "ga": 12364, "ki": 12365, "gi": 12366, "ku": 12367, "gu": 12368, "ke": 12369, "ge": 12370, "ko": 12371, "go": 12372,"sa": 12373, "za": 12374,"shi": 12375, "ji": 12376, "su": 12377, "zu": 12378, "se": 12379, "ze": 12380,"so": 12381, "zo": 12382,"ta": 12383, "da": 12384, "chi": 12385, "di": 12386, "tsu": 12388, "du": 12389,"te": 12390, "de": 12391,"to": 12392, "do": 12393,"na": 12394, "ni": 12395, "nu": 12396, "ne": 12397, "no": 12398, "ha": 12399, "ba": 12400, "pa": 12401,"hi": 12402, "bi": 12403, "pi": 12404, "fu": 12405, "bu": 12406, "pu": 12407,"he": 12408, "be": 12409, "pe": 12410, "ho": 12411, "bo": 12412, "po": 12413,"ma": 12414, "mi": 12415, "mu": 12416, "me": 12417, "mo": 12418,"ya": 12420, "yu": 12422, "yo": 12424, "ra": 12425, "ri": 12426, "ru": 12427, "re": 12428, "ro": 12429, "wa": 12431, "wi": 12432, "we": 12433, "wo": 12434,    "n" : 12435,     "vu": 12436         },   "katakana" : {  "a" : 12450, "i" : 12452, "u" : 12454, "e" : 12456, "o" : 12458,  "ka": 12459, "ga": 12460, "ki": 12461, "gi": 12462, "ku": 12463, "gu": 12464, "ke": 12465, "ge": 12466, "ko": 12467, "go": 12468, "sa": 12469, "za": 12470, "shi": 12471, "ji": 12472, "su": 12473, "zu": 12474,"se": 12475, "ze": 12476,"so": 12477, "zo": 12478,"ta": 12479, "da": 12480,"chi": 12481, "di": 12482,"tsu": 12484, "du": 12485,"te": 12486, "de": 12487,"to": 12488, "do": 12489,"na": 12490, "ni": 12491, "nu": 12492, "ne": 12493, "no": 12494, "ha": 12495, "ba": 12496, "pa": 12497,"hi": 12498, "bi": 12499, "pi": 12500,"fu": 12501, "bu": 12502, "pu": 12503,"he": 12504, "be": 12505, "pe": 12506, "ho": 12507, "bo": 12508, "po": 12509,"ma": 12510, "mi": 12511, "mu": 12512, "me": 12513, "mo": 12514, "ya": 12516, "yu": 12518, "yo": 12520,"ra": 12521, "ri": 12522, "ru": 12523, "re": 12524, "ro": 12525,"wa": 12527, "wi": 12528, "we": 12529, "wo": 12530,"n" : 12531,"vu": 12532, "va": 12535, "vi": 12536, "ve": 12537, "vo": 12538}}';
 var alphabetALL=JSON.parse(chaineJSON);
+
+//Classe qui gère une partie
 function Partie(){
         var NomPartie="";
         var NombreManche;
@@ -21,8 +25,10 @@ function Partie(){
         var alphabet;
         var avatar={};
         var suffpre=[];
+
+    //Constructeur de cette classe
     var __construct=function(that){
-        that.NomPartie="partie1";
+        that.NomPartie="";
         that.NombreManche=3;
         that.secondes= 0;
         that.mots=undefined;
@@ -43,6 +49,7 @@ function Partie(){
         that.suffpre=[];
     }(this)
 
+    //Paramètrage de cette partie
     this.initialise=function(NomPartie,NombreManche,alphabet,suffpre){
         this.NomPartie=NomPartie;
         this.NombreManche=+NombreManche;
@@ -60,6 +67,7 @@ function Partie(){
         this.suffpre=suffpre;
     }
 
+    //Fonction qui décrémente le chronomètre de la partie
     this.decrementerChrono=function(){
         console.log(EnsembleParties[this.NomPartie].secondes);
         if(this.secondes>0){
@@ -139,15 +147,18 @@ function Partie(){
         }
     }
 }
-var EnsembleParties={partie1:new Partie(),partie2:new Partie()};
-console.log(EnsembleParties);
 
+//Tableau contenant tous les objets de la classe Partie
+var EnsembleParties={};
+
+//renvoie un entier entre 0 et max
 function getRandomInt(max) {
   return Math.floor(Math.random() * Math.floor(max));
 }
+
+//Renvoie un tableau de trois syllabes aléatoire suivant les options dans un alphabet
 function send3data(alphabet,suffpre){
     var taille_alphabet=0;
-    //var suffpre=recupSuffixePrefixe();
     for(var lettre in alphabet){
         taille_alphabet++;
     }
@@ -172,25 +183,7 @@ function send3data(alphabet,suffpre){
     }
     return resultat;
 }
-/*
-function send3data(alphabet){
-    var taille_alphabet=0;
-    for(var lettre in alphabet){
-        taille_alphabet++;
-    }
-    var resultat=[];
-    var random=[];
-    for(var j=0;j<3;j++){
-            do{
-                var rand=getRandomInt(taille_alphabet);
-            }
-            while(random.includes(rand));
-            random.push(rand);
-            donnee=Object.keys(alphabet)[rand];
-            resultat.push(donnee);
-    }
-    return resultat;
-}*/
+
 // Chargement des modules 
 var express = require('express');
 var app = express();
@@ -222,29 +215,7 @@ io.on('connection', function (socket) {
     /**
      *  Doit être la première action après la connexion.
      *  @param  id  string  l'identifiant saisi par le client
-     */
-
-     
-    socket.on("login", function(id) {
-        while (clients[id]) {
-            id = id + "(1)";   
-        }
-        currentID = id;
-        clients[currentID] = socket;
-        if(currentID!=undefined){
-            scores[currentID]=0;
-        }
-        console.log("Nouvel utilisateur : " + currentID);
-        // envoi d'un message de bienvenue à ce client
-        socket.emit("bienvenue", id);
-       socket.emit("essai", manche);
-        // envoi aux autres clients 
-        socket.broadcast.emit("message", { from: null, to: null, text: currentID + " a rejoint la discussion", date: Date.now() } );
-        // envoi de la nouvelle liste à tous les clients connectés 
-        io.sockets.emit("liste", Object.keys(clients),scores);
-        NbEssai[currentID]=3;
-    });
-    
+     */    
     socket.on("loginPartie", function(NomPartie,pseudo,avatar) {
         console.log("Server-loginPartie"+avatar);
         var erreurPseudo=false;
@@ -278,8 +249,6 @@ io.on('connection', function (socket) {
                   EnsembleParties[NomPartie].clients[client].emit("liste", Object.keys( EnsembleParties[NomPartie].clients), EnsembleParties[NomPartie].scores,EnsembleParties[NomPartie].avatar);
                 }
                  EnsembleParties[NomPartie].NbEssai[currentID]=3;
-                 console.log(EnsembleParties);
-
             }
             else{
                 socket.emit("loginFAIL");
@@ -287,6 +256,7 @@ io.on('connection', function (socket) {
         }
     });
     
+    //Crée la partie en adéquation avec les attributs donnés
     socket.on("creerPartie",function(pseudo,NomPartie,NombreManche,alphabet,suffpre){
         var erreurPseudo=false;
         for(var game in EnsembleParties){
@@ -315,7 +285,6 @@ io.on('connection', function (socket) {
                 if(msg.from!=undefined){
                     EnsembleParties[NomPartie].scores[msg.from]+=EnsembleParties[NomPartie].secondes;
                 }
-                //socket.emit("gagnant",msg.from);
                 if(EnsembleParties[NomPartie].nbreGagant==Object.keys(EnsembleParties[NomPartie].clients).length-1 && Object.keys(EnsembleParties[NomPartie].clients).length!=1){
                    EnsembleParties[NomPartie].secondes=1;
                 }
@@ -410,6 +379,7 @@ io.on('connection', function (socket) {
 
             for(var game in EnsembleParties){
                 if(EnsembleParties[game].clients[currentID]!=undefined){
+                    //Si il n'y a plus personne dans la partie, on la supprime
                     if(Object.keys(EnsembleParties[game].clients).length<=1){
                         delete EnsembleParties[game].scores[currentID];
                         delete EnsembleParties[game].clients[currentID];
@@ -430,14 +400,15 @@ io.on('connection', function (socket) {
             }
         }
         console.log("Client déconnecté");
-        console.log(EnsembleParties);
     });
+
+    //Envoi au client l'aide demandée
      socket.on("help", function(NomPartie) {
          EnsembleParties[NomPartie].AideDonnee=true;
-        //clients[dessinateur].emit("help", alphabet.hiragana[motaDeviner]);
         socket.emit("help", EnsembleParties[NomPartie].alphabet[EnsembleParties[NomPartie].motaDeviner]);
     });
 
+     //Envoie le dessin du dessinateur aux autres joueurs
      socket.on("dessinCanvas", function(img,NomPartie) { 
         // si client était identifié
         if(NomPartie!=undefined){
@@ -446,32 +417,51 @@ io.on('connection', function (socket) {
             }
         }
     });
+
+    //Récupère le choix du mot du dessinateur
     socket.on("choixMot", function(num,NomPartie) {
        EnsembleParties[NomPartie].motaDeviner=EnsembleParties[NomPartie].mots[num];
         for(var client in  EnsembleParties[NomPartie].clients){
          EnsembleParties[NomPartie].clients[client].emit("finChoix");
         }
     });
+
+    //Lance la partie et le chronomètre
     socket.on("go", function(NomPartie) {
         if(EnsembleParties[NomPartie]!=undefined && !EnsembleParties[NomPartie].PartieEnCours){
-            EnsembleParties[NomPartie].PartieEnCours=true;
-           
+            EnsembleParties[NomPartie].PartieEnCours=true;    
             EnsembleParties[NomPartie].decrementerChrono();
         }
     });
 
-    socket.on("lancementPartie", function () {
-        var i =getRandomInt(Object.keys(clients).length);
-        console.log("lancementPartie");
-        console.log(Object.keys(clients)[i]);
-        io.sockets.emit("liste", Object.keys(clients),scores,EnsembleParties[NomPartie].avatar);
-        io.sockets.emit("designeDessinateur",Object.keys(clients)[i]);
-        decrementerChrono();
-        gagnant=[];
-        for(var user in NbEssai){
-            NbEssai[user]=3;
+    //Déconnexion de la partie en appuyant sur le bouton quitter
+    socket.on("retourEcran",function(){
+        if (currentID) {
+            for(var game in EnsembleParties){
+                if(EnsembleParties[game].clients[currentID]!=undefined){
+                    //Si il n'y a plus personne dans la partie, on la supprime
+                    if(Object.keys(EnsembleParties[game].clients).length<=1){
+                        delete EnsembleParties[game].scores[currentID];
+                        delete EnsembleParties[game].clients[currentID];
+                        EnsembleParties[game].PartieEnCours=false;
+                    }
+                    else{
+                        delete EnsembleParties[game].scores[currentID];
+                        delete EnsembleParties[game].clients[currentID];  
+                         for(var client in  EnsembleParties[game].clients){
+                            
+                            EnsembleParties[game].clients[client].emit("message", 
+                        { from: null, to: null, text: currentID + " vient de se déconnecter de l'application", date: Date.now() } );
+                            // envoi de la nouvelle liste pour mise à jour
+                            EnsembleParties[game].clients[client].emit("liste", Object.keys(EnsembleParties[game].clients),EnsembleParties[game].scores,EnsembleParties[game].avatar);
+                        }
+                    }
+                }
+            }
         }
     });
+
+    //détermine si la réponse de l'utilisateur est proche du mot à deviner
     function isReponseProche(message,NomPartie){
         var morceau1;
         var morceau2;
