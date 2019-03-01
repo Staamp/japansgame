@@ -243,7 +243,7 @@ function envoyerImage(src){
 }
 socket.on("audio",function(num){
 	if(num==1){
-		var audio = new Audio('../images/son.mp3');
+		var audio = new Audio('../images/jcole.mp3');
 		audio.play();
 	}
 	if(num==2){
