@@ -72,7 +72,7 @@ function Partie(){
         }
         else{
             if(this.dessinateur!=undefined){
-               var gainTour=Math.round(((this.gagnant.length)*30-EnsembleParties["partie1"].nbEssaiParManche*2)/(Object.keys(EnsembleParties["partie1"].clients).length-1));
+               var gainTour=Math.round(((this.gagnant.length)*30-EnsembleParties[this.NomPartie].nbEssaiParManche*2)/(Object.keys(EnsembleParties[this.NomPartie].clients).length-1));
                if(gainTour<0){
                     gainTour=0;
                }
@@ -327,17 +327,20 @@ io.on('connection', function (socket) {
                 }
             }
             else{
+                if(isReponseProche(msg.text,NomPartie)){
+                    socket.emit("message",{from:msg.from,to:"Vérificateur",text:"Réponse proche", date:Date.now()});
+                }
                 if(!EnsembleParties[NomPartie].gagnant.includes(msg.from)&&EnsembleParties[NomPartie].NbEssai[msg.from]>0){
                     EnsembleParties[NomPartie].NbEssai[msg.from]--;
                     EnsembleParties[NomPartie].nbEssaiParManche++;
                     //plus d'essais
                     var NbrUserSansEssai=0;
-                    for(var user in EnsembleParties.NbEssai){
-                        if(NbEssai[user]==0){
+                    for(var user in EnsembleParties[NomPartie].NbEssai){
+                        if(EnsembleParties[NomPartie].NbEssai[user]==0){
                             NbrUserSansEssai++;
                         }
                     }
-                    if(NbrUserSansEssai+EnsembleParties.nbreGagant.length==(Object.keys(EnsembleParties[NomPartie].clients).length-1)){
+                    if(NbrUserSansEssai+EnsembleParties[NomPartie].nbreGagant.length==(Object.keys(EnsembleParties[NomPartie].clients).length-1)){
                         EnsembleParties[NomPartie].secondes=1;
                     }
                     EnsembleParties[NomPartie].clients[msg.from].emit("essai", EnsembleParties[NomPartie].NbEssai[msg.from]);
@@ -379,6 +382,7 @@ io.on('connection', function (socket) {
                 console.log(EnsembleParties[game].clients[currentID]);
                 if(EnsembleParties[game].clients[currentID]!=undefined){
                     if(Object.keys(EnsembleParties[game].clients).length<=1){
+                        delete EnsembleParties[game].clients[currentID];
                         EnsembleParties[game].PartieEnCours=false;
                     }
                     else{
@@ -406,6 +410,8 @@ io.on('connection', function (socket) {
             for(var game in EnsembleParties){
                 if(EnsembleParties[game].clients[currentID]!=undefined){
                     if(Object.keys(EnsembleParties[game].clients).length<=1){
+                        delete EnsembleParties[game].scores[currentID];
+                        delete EnsembleParties[game].clients[currentID];
                         EnsembleParties[game].PartieEnCours=false;
                     }
                     else{
@@ -423,6 +429,7 @@ io.on('connection', function (socket) {
             }
         }
         console.log("Client déconnecté");
+        console.log(EnsembleParties);
     });
      socket.on("help", function(NomPartie) {
          EnsembleParties[NomPartie].AideDonnee=true;
@@ -452,7 +459,6 @@ io.on('connection', function (socket) {
         }
     });
 
-
     socket.on("lancementPartie", function () {
         var i =getRandomInt(Object.keys(clients).length);
         console.log("lancementPartie");
@@ -465,4 +471,29 @@ io.on('connection', function (socket) {
             NbEssai[user]=3;
         }
     });
+    function isReponseProche(message,NomPartie){
+        var morceau1;
+        var morceau2;
+        for(var pos=0;pos<EnsembleParties[NomPartie].motaDeviner.length;pos++){
+            if(pos==0){
+                morceau1="";
+            }
+            else{
+                morceau1=EnsembleParties[NomPartie].motaDeviner.substring(0,pos);
+            }
+            console.log("morceau1"+morceau1);
+            if(EnsembleParties[NomPartie].motaDeviner.length>pos){
+                morceau2="";
+            }
+            else{
+                morceau2=EnsembleParties[NomPartie].motaDeviner.substring(pos+1);
+            }
+            console.log("morceau2"+morceau2);
+            var regex = new RegExp(morceau1+"."+morceau2+" "|morceau1+"."+morceau2);
+            if(regex.test(message)){
+                return true;
+            }
+        }
+        return false;
+    }
 });

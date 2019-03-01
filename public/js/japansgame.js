@@ -307,6 +307,7 @@ function clearCanvas(){
 	var dessin = document.getElementById('dessin');
 	var cvsDessin = dessin.getContext('2d');
 	cvsDessin.clearRect(0,0,500,500);
+	appelleSocketCanvas();
 }
 
 function clicSouris(){
@@ -323,7 +324,7 @@ function clicSouris(){
 	}
 }
 
-function appelleSocketCanvas(img){
+function appelleSocketCanvas(){
 	socket.emit("dessinCanvas",document.getElementById('dessin').toDataURL(),nomPartieUser);
 }
 
@@ -421,7 +422,7 @@ function relachementSouris(){
 	if(etat=="rectangle"){
 		afficheRectangle();
 	}
-	appelleSocketCanvas("lol");
+	appelleSocketCanvas();
 }
 
 function afficheRectangle(){
@@ -584,7 +585,7 @@ socket.on("creationOK",function(pseudo,nomPartie){
 	socket.emit("loginPartie",nomPartie,pseudo,avatarUser);
 });
 socket.on("creationFAIL",function(){
-	document.getElementById('error').innerHTML="Nom de partie déjà utilisé";
+	document.getElementById('error').innerHTML="Nom de partie déjà utilisé ou invalide";
 });
 socket.on("loginFAIL",function(){
 	document.getElementById('error').innerHTML="Partie introuvable";
@@ -606,6 +607,7 @@ function envoiMot(num){
 	socket.emit("choixMot",num,nomPartieUser);
 }
 function quitter() {
+	socket.emit("disconnect");
 	document.getElementById('logScreen').style.display="block";
 	document.getElementById('error').innerHTML="";
 	document.getElementById('all').style.display="none";
@@ -613,6 +615,7 @@ function quitter() {
 	document.getElementById('syllabe').innerHTML="";
 }
 function sauvegarderNom() {
+	document.getElementById('start').style.display='block';
 	localStorage.setItem('Nom',document.getElementById('pseudo').value);
 	localStorage.setItem('NombreManche',document.getElementById('NombreManche').value);
 	localStorage.setItem('alphabet',document.getElementById('alphabet').value);
@@ -623,6 +626,7 @@ function sauvegarderNom() {
 	else{
 		localStorage.setItem('avatar',1);
 	}
+	localStorage.setItem('sufpre',recupSuffixePrefixe())
 }
 function chargerNom() {
 	console.log("test");
@@ -630,10 +634,9 @@ function chargerNom() {
 	var NombreMancheTemp=localStorage.getItem('NombreManche');
 	var alphabetTemp=localStorage.getItem('alphabet');
 	var nomPartieTemp=localStorage.getItem('nomPartieCreation');
-	var suffpre=recupSuffixePrefixe();
-	console.log(suffpre);
-
-	if(pseudo!=undefined&&NombreMancheTemp!=undefined&&alphabetTemp!=undefined&&nomPartieTemp!=undefined){
+	var suffpre=localStorage.getItem('sufpre');
+	document.getElementById('start').style.display='block';
+	if(pseudo!=undefined&&NombreMancheTemp!=undefined&&alphabetTemp!=undefined&&nomPartieTemp!=undefined&&suffpre!=undefined){
 		socket.emit("creerPartie",pseudo,nomPartieTemp,NombreMancheTemp,alphabetTemp,suffpre);
 	}
 	else{
@@ -669,6 +672,7 @@ function Rejoindre() {
 		avatarUser=1;
 	}
 	console.log(avatarUser);
+	document.getElementById('start').style.display='block';
 	NomUtilisateur=document.getElementById('pseudo').value;
 	nomPartieUser=document.getElementById('nomPartie').value;
 	socket.emit("loginPartie",nomPartieUser,NomUtilisateur,avatarUser);
