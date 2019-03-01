@@ -482,15 +482,9 @@ io.on('connection', function (socket) {
             else{
                 morceau1=EnsembleParties[NomPartie].motaDeviner.substring(0,pos);
             }
-            console.log("morceau1"+morceau1);
-            if(EnsembleParties[NomPartie].motaDeviner.length>pos){
-                morceau2="";
-            }
-            else{
-                morceau2=EnsembleParties[NomPartie].motaDeviner.substring(pos+1);
-            }
-            console.log("morceau2"+morceau2);
-            var regex = new RegExp(morceau1+"."+morceau2+" "|morceau1+"."+morceau2);
+            morceau2=EnsembleParties[NomPartie].motaDeviner.substring(pos+1);
+            console.log(morceau1+"."+morceau2);
+            var regex = new RegExp("^"+morceau1+"."+morceau2+"$|^"+morceau1+"."+morceau2+"\s$");
             if(regex.test(message)){
                 return true;
             }

@@ -241,7 +241,15 @@ function envoyerImage(src){
 	socket.emit("message",{from:NomUtilisateur, to:null, text:"<img src="+src+">", date:Date.now()},nomPartieUser);
 
 }
-
+socket.on("audio",function(num){
+	if(num==1){
+		var audio = new Audio('../images/son.mp3');
+		audio.play();
+	}
+	if(num==2){
+		
+	}
+})
 socket.on("message",function(msg) {
 	var main=document.getElementsByTagName('main')[0];
 	console.log(msg);
