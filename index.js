@@ -67,18 +67,23 @@ function Partie(){
         this.suffpre=suffpre;
     }
 
-    //Fonction qui décrémente le chronomètre de la partie
+    //Fonction qui décrémente le chronomètre de la partie et qui gère la partie.
     this.decrementerChrono=function(){
-        console.log(EnsembleParties[this.NomPartie].secondes);
+
+        //Si le compteur n'est pas à 0, on le décremente
         if(this.secondes>0){
             this.secondes--;
-
+            //On envoie le temps aux joueurs
             for(var client in  this.clients){
               this.clients[client].emit("setTimer",EnsembleParties[this.NomPartie].secondes);
+              if(this.secondes==5){
+                this.clients[client].emit("audio","finTemps");
+              }
             }
            setTimeout(this.decrementerChrono.bind(this),1000);
         }
         else{
+            //Si il est à 0, on désigne un dessinateur parmis ceux qui n'ont pas dessiné
             if(this.dessinateur!=undefined){
                var gainTour=Math.round(((this.gagnant.length)*30-EnsembleParties[this.NomPartie].nbEssaiParManche*2)/(Object.keys(EnsembleParties[this.NomPartie].clients).length-1));
                if(gainTour<0){
@@ -90,9 +95,7 @@ function Partie(){
                 this.scores[this.dessinateur]+=gainTour;
                 EnsembleParties[this.NomPartie].dessinateurManche.push(EnsembleParties[this.NomPartie].dessinateur);
             }
-            else{
-                console.log("ALERTE CRITIQUE DE SECURITEE");
-            }
+
             //On regarde si la manche est terminée.
             var finie=true;
             console.log(this.dessinateurManche);
@@ -289,6 +292,7 @@ io.on('connection', function (socket) {
                    EnsembleParties[NomPartie].secondes=1;
                 }
                 msg.text="Bonne réponse";
+                socket.emit("audio","BonneReponse");
                 EnsembleParties[NomPartie].gagnant.push(msg.from);
                 for(var client in  EnsembleParties[NomPartie].clients){
                  EnsembleParties[NomPartie].clients[client].emit("message", msg);
@@ -298,6 +302,7 @@ io.on('connection', function (socket) {
             else{
                 if(isReponseProche(msg.text,NomPartie)){
                     socket.emit("message",{from:msg.from,to:"Vérificateur",text:"Réponse proche", date:Date.now()});
+                    socket.emit("audio","proche");
                 }
                 if(!EnsembleParties[NomPartie].gagnant.includes(msg.from)&&EnsembleParties[NomPartie].NbEssai[msg.from]>0){
                     EnsembleParties[NomPartie].NbEssai[msg.from]--;
@@ -441,9 +446,7 @@ io.on('connection', function (socket) {
                 if(EnsembleParties[game].clients[currentID]!=undefined){
                     //Si il n'y a plus personne dans la partie, on la supprime
                     if(Object.keys(EnsembleParties[game].clients).length<=1){
-                        delete EnsembleParties[game].scores[currentID];
-                        delete EnsembleParties[game].clients[currentID];
-                        EnsembleParties[game].PartieEnCours=false;
+                        delete EnsembleParties[game]
                     }
                     else{
                         delete EnsembleParties[game].scores[currentID];

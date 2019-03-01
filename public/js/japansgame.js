@@ -433,7 +433,7 @@ socket.on("essai",function(nombre){
 
 //récupère le numéro de la manche
 socket.on("manche",function(nombre){
-	document.getElementById('manche').innerHTML="manche="+nombre;
+	document.getElementById('Manche').innerHTML="manche="+nombre;
 });
 
 //Indique que la partie est finie
@@ -454,6 +454,9 @@ socket.on("finPartie",function(scores){
 		var max=0;
 		var userMax;
 		for(var user in copieScore){
+			if(copieScore[user]==null){
+				copieScore[user]=0;
+			}
 			if(copieScore[user]>=max){
 				max=copieScore[user];
 				userMax=user;
@@ -465,6 +468,21 @@ socket.on("finPartie",function(scores){
 	}
 	document.getElementById('classement').innerHTML+="<button type=button id=quitter onclick=quitter()>Quitter</button>";
 });
+
+//Lance le message audio associé
+socket.on("audio",function(nom){
+	if(nom=="proche"){
+		var player = document.getElementById('proche');
+	}
+	else if(nom=="finTemps"){
+		var player = document.getElementById('finTemps');
+	}
+	else if(nom=="BonneReponse"){
+		var player = document.getElementById('BonneReponse');
+	}
+	player.play();
+});
+
 
 //Indique les joeurs qui sont gagnant cette manche. (Ils sont surlignés en vert dans le chat)
 socket.on("listegagnant",function(l,avatar){
