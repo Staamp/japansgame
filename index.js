@@ -340,7 +340,8 @@ io.on('connection', function (socket) {
                             NbrUserSansEssai++;
                         }
                     }
-                    if(NbrUserSansEssai+EnsembleParties[NomPartie].nbreGagant.length==(Object.keys(EnsembleParties[NomPartie].clients).length-1)){
+                    if(NbrUserSansEssai+EnsembleParties[NomPartie].nbreGagant==(Object.keys(EnsembleParties[NomPartie].clients).length-1)){
+
                         EnsembleParties[NomPartie].secondes=1;
                     }
                     EnsembleParties[NomPartie].clients[msg.from].emit("essai", EnsembleParties[NomPartie].NbEssai[msg.from]);
