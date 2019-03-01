@@ -1,3 +1,4 @@
+//Classe command qui sert à dessiner dans le canvas.
 class command{
 	constructor(){
 		this.buttonLeftPressed = false;
@@ -16,6 +17,8 @@ class command{
 	}
 
 }
+
+//variable coté client.
 var avatarUser=1;
 var gagnantTour=[];
 var numeroMot;
@@ -34,16 +37,16 @@ var gagne=false;
 var dataUser;
 var nomPartieUser;
 var NomUtilisateur;
+var listeUser;
+
 var socket=io.connect("http://localhost:8080");
 
 document.addEventListener("DOMContentLoaded",function(e){
-		var listeUser;
-		document.getElementById('btnConnecter').addEventListener('click',creerPartie);
+
+		//écouteurs sur les différents boutons
+		document.getElementById('btnCreerPartie').addEventListener('click',creerPartie);
 		document.getElementById('btnQuitter').addEventListener('click',deconnecte);
 		document.getElementById('btnEnvoyer').addEventListener('click',envoyer);
-		document.getElementById('btnImage').addEventListener('click',gif);
-		document.getElementById('btnRechercher').addEventListener('click',rechercheGif);
-		document.getElementById('btnFermer').addEventListener('click',Quittegif);
 		overlay = document.getElementById('overlay');
 		canvasOverlay = overlay.getContext('2d');
 		overlay.addEventListener('mouseover',entreeCanvas);
@@ -58,24 +61,8 @@ document.addEventListener("DOMContentLoaded",function(e){
 		document.getElementById('new').addEventListener('click',clearCanvas);
 		document.getElementById('start').addEventListener('click',function(){socket.emit("go",nomPartieUser);});
 		var res=document.getElementById('bcResults');
-		for(var i =0;i<5;i++){
-			res.innerHTML+="<div  id=id"+i+"></div>";
-		}
-		document.getElementById("id0").addEventListener('click',function(){
-			envoyerImage(res.getElementsByTagName('img')[0].src);
-		});
-		document.getElementById("id1").addEventListener('click',function(){
-			envoyerImage(res.getElementsByTagName('img')[1].src);
-		});
-		document.getElementById("id2").addEventListener('click',function(){
-			envoyerImage(res.getElementsByTagName('img')[2].src);
-		});
-		document.getElementById("id3").addEventListener('click',function(){
-			envoyerImage(res.getElementsByTagName('img')[3].src);
-		});
-		document.getElementById("id4").addEventListener('click',function(){
-			envoyerImage(res.getElementsByTagName('img')[4].src);
-		});
+
+		//écouteur permettant d'envoyer un message en appuyant sur la touche 'Entrée'
 		document.getElementById("monMessage").addEventListener('keypress', function (e) {
 		    var key = e.which || e.keyCode;
 		    if (key === 13) { 
@@ -83,26 +70,31 @@ document.addEventListener("DOMContentLoaded",function(e){
 		    }
     	});
 
-/*Fonction TP3*/
+//Lance une partie
 function creerPartie(){
+	//récuperation des options de parties
 	NomUtilisateur=document.getElementById('pseudo').value;
 	var NomPartieTemp=document.getElementById('nomPartieCreation').value;
 	var AlphabetTemp=document.getElementById('alphabet').value;
 	var NombreMancheTemp=document.getElementById('NombreManche').value;
 	var suffpre=recupSuffixePrefixe();
+	//Envoi de la socket au serveur
 	socket.emit("creerPartie",NomUtilisateur,NomPartieTemp,NombreMancheTemp,AlphabetTemp,suffpre);
-	//document.getElementById('all').style.display="block";
-	//document.getElementById('logScreen').style.display="none";
 }
+
+//Quitte une partie (non lancée)
 function deconnecte(){
-	socket.emit("disconnect",1);
-	socket.emit("logout");
+	//TODO
+	socket.emit("retourEcran");
+	//On repasse sur l'écran de connexion
 	document.getElementById('logScreen').style.display="block";
 	document.getElementById('error').innerHTML="";
 	document.getElementById('all').style.display="none";
 	document.getElementById('debutTour').style.display="none";
 	document.getElementById('syllabe').innerHTML="";
 }
+
+/*
 function gif(){
 	var image=document.getElementById('bcImage');
 	image.style="display:block";
@@ -133,11 +125,13 @@ function rechercheGif(){
     xhttp.open("GET", 'http://api.giphy.com/v1/gifs/search?q='+recherche+'&api_key=0X5obvHJHTxBVi92jfblPqrFbwtf1xig&limit=5', true);
     xhttp.send();
 }
+
 function oki(){
 	if(document.getElementById("id").getElementsByTagName('img')!=null){
 		envoyerImage(res.getElementsByTagName('img')[0].src);
 	}
 }
+
 function ecouteur(){
 	
 	 for(var i=0;i<id;i++){		  
@@ -146,10 +140,13 @@ function ecouteur(){
 	//document.getElementById('id0').addEventListener('click',envoyerImage(result.data[0].images.downsized.url));
 }
 
+
 function estDessinateur(){
 	var toolbox=document.getElementById('toolbox');
 	toolbox.style="	";
 }
+*/
+
 function detecteEmoji(text){
 	var res=text;
  	var regexRire=new RegExp(':\\\)');
@@ -241,15 +238,7 @@ function envoyerImage(src){
 	socket.emit("message",{from:NomUtilisateur, to:null, text:"<img src="+src+">", date:Date.now()},nomPartieUser);
 
 }
-socket.on("audio",function(num){
-	if(num==1){
-		var audio = new Audio('../images/jcole.mp3');
-		audio.play();
-	}
-	if(num==2){
-		
-	}
-})
+
 socket.on("message",function(msg) {
 	var main=document.getElementsByTagName('main')[0];
 	console.log(msg);

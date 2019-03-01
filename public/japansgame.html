@@ -44,7 +44,7 @@
                     <option value="les2">Les 2</option>
                 </select>
                 <input type="text" id="nomPartieCreation" placeholder="Nom de la partie" size="10">
-                <input type="button" value="Créer Partie" id="btnConnecter" onclick="sauvegarderNom()">
+                <input type="button" value="Créer Partie" id="btnCreerPartie" onclick="sauvegarderNom()">
                 <input type="button" value="Créer Partie habituelle" id="DernierProfil" onclick="chargerNom()">
 				<input type="button" value="Options avancées" id="optionAvance" onclick="optionAvance()">
 			</p>
@@ -106,17 +106,8 @@
         <footer>
             <input type="text" id="monMessage">
             <input type="button" value="Envoyer" id="btnEnvoyer">
-            <input type="button" value="Image" id="btnImage">
             <input type="button" value="Quitter" id="btnQuitter">
         </footer>
-        <div id="bcImage" style="display: none">
-            <header>
-                <input type="text" id="recherche" placeholder="Tapez ici le texte de votre recherche">
-                <input type="button" value="Recherche" id="btnRechercher">
-            </header>
-            <div id="bcResults"></div>
-            <footer><input type="button" value="Fermer" id="btnFermer"></footer>
-        </div>
     </div>
 	<div id="content_dessin">
 	<h2>Zone de dessin:</h2>

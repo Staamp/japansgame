@@ -320,7 +320,6 @@ io.on('connection', function (socket) {
                    EnsembleParties[NomPartie].secondes=1;
                 }
                 msg.text="Bonne réponse";
-                socket.emit("audio",1);
                 EnsembleParties[NomPartie].gagnant.push(msg.from);
                 for(var client in  EnsembleParties[NomPartie].clients){
                  EnsembleParties[NomPartie].clients[client].emit("message", msg);
